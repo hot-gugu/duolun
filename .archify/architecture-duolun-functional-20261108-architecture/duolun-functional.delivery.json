@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "c82db7ca-c911-4621-8824-8ac4356b3cd3",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "D:\\天泽智联\\多伦\\产品输出材料\\原型页面\\.archify\\architecture-duolun-functional-20261108-architecture\\candidate.json",
+  "output": "D:\\天泽智联\\多伦\\产品输出材料\\原型页面\\.archify\\architecture-duolun-functional-20261108-architecture\\duolun-functional.html",
+  "specification": {
+    "sha256": "6b548149ad4900036806507d8f872649bc16019f2e82218221d9c51f46d9df77",
+    "bytes": 6822
+  },
+  "artifact": {
+    "sha256": "6986ef214d1f116f822a0f73b77c43475abfe4697ada8fc75251179d26d1faa5",
+    "bytes": 820038
+  }
+}

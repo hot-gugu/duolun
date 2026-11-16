@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视频智能巡检</title>
+    
+    
+    
+    <style type="text/css">
+        @layer utilities {
+            .scrollbar-dark::-webkit-scrollbar {
+                width: 6px;
+                height: 6px;
+            }
+            .scrollbar-dark::-webkit-scrollbar-thumb {
+                background: #394157;
+                border-radius: 3px;
+            }
+            .scrollbar-dark::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            .video-card-shadow {
+                box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+            }
+            .tag-bg-blue {
+                background-color: rgba(37, 118, 247, 0.2);
+                color:#69a4ff;
+            }
+            .tag-bg-red {
+                background-color: rgba(248, 114, 114, 0.2);
+                color:#ff8888;
+            }
+            .tag-bg-purple {
+                background-color: rgba(168, 85, 247, 0.2);
+                color:#c094ff;
+            }
+            .tag-bg-orange {
+                background-color: rgba(251, 146, 60, 0.2);
+                color:#ffb373;
+            }
+            .violation-rect{
+                border:2px solid #F87272;
+                position:absolute;
+                box-shadow:0 0 0 1px #F87272;
+            }
+            .tab-active{
+                color:#0879ff;border-color:#0879ff;
+            }
+            .tree-node-children{
+                display:block;
+            }
+            .tree-node-children.hidden{
+                display:none;
+            }
+            .submenu-wrap{
+                padding-left:16.0px;overflow:hidden;
+            }
+            .menu-item-active{
+                background-color:#0879ff;color:#0879ff;border-color:#0879ff;
+            }
+        }
+    </style>
+    <style>
+        #video-grid-fullscreen:fullscreen,
+        #video-grid-fullscreen:-webkit-full-screen {
+            background: #0F1420;
+            padding: 16px;
+            overflow: auto;
+        }
+        #video-grid-fullscreen.grid-nine-active { overflow:hidden; }
+        .video-grid.grid-nine-layout {
+            height:100%;
+            grid-template-columns:repeat(3,minmax(0,1fr));
+            grid-template-rows:repeat(3,minmax(0,1fr));
+        }
+        .video-grid.grid-nine-layout > div:not(.hidden) { min-height:0;display:flex;flex-direction:column; }
+.video-grid.grid-nine-layout .video-img-wrap { height:auto!important;min-height:0;flex:1; }
+.video-grid .px-3.pb-3.flex {
+    align-items: center;
+    min-height: 34px;
+}
+.video-grid .px-3.pb-3.flex > button,
+.video-grid .px-3.pb-3.flex > .fa-expand {
+    width: 28px;
+    height: 28px;
+    margin: 0;
+    padding: 0 !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    flex: 0 0 28px;
+}
+    </style>
+<link rel="stylesheet" href="utilities.css?v=layout2"><link rel="stylesheet" href="inspection.css?v=grid-height3"></head>
+<body class="font-inter bg-darkBg text-textMain h-screen overflow-hidden flex">
+    
+      
+    
+
+    
+    <div class="flex-1 flex flex-col overflow-hidden">
+        
+        
+
+        <div class="flex flex-1 overflow-hidden">
+            
+            <div class="w-[280px] bg-darkPanel border-r border-darkBorder flex flex-col">
+                <div class="px-4 py-4 border-b border-darkBorder">
+                    <div id="left-tabs" class="flex" style="display:none!important">
+                        <div id="tab-area" class="flex-1 text-center py-2 cursor-pointer text-sm tab-active" onclick="switchLeftTab(&#x27;area&#x27;)">作业区域</div>
+                        <div id="tab-plan" class="flex-1 text-center py-2 cursor-pointer text-sm text-textSecondary" onclick="switchLeftTab(&#x27;plan&#x27;)">作业计划</div>
+                    </div>
+                    
+                    
+                    <div class="relative">
+                        <input type="text" placeholder="请输入搜索" class="w-full bg-darkBg border border-darkBorder rounded px-3 py-2 text-sm text-textMain placeholder-textSecondary outline-none focus:border-primary">
+                        <i class="fa fa-search absolute right-3 top-2.5 text-textSecondary"></i>
+                    </div>
+                </div>
+
+                
+                <div id="panel-area" class="flex-1 overflow-y-auto scrollbar-dark p-3 text-sm"><div class="mb-3"><div class="tree-toggle flex items-center gap-1 py-1.5 cursor-pointer"><i class="fa fa-angle-down text-textSecondary tree-icon"></i><span>东帮区域 (28)</span></div><div class="pl-4 tree-node-children"><div class="tree-toggle flex items-center gap-1 py-1.5 cursor-pointer"><i class="fa fa-angle-down text-textSecondary tree-icon"></i><span>东帮658段 (6)</span></div><div class="pl-4 tree-node-children"><div class="py-1.5 flex justify-between items-center gap-2"><div class="flex items-center gap-1.5"><i class="fa fa-camera text-primary"></i><span>东帮658段工作面摄像头</span></div><span class="text-onlineGreen text-xs" title="当前状态：在线">在线</span></div><div class="py-1.5 flex justify-between items-center gap-2"><div class="flex items-center gap-1.5"><i class="fa fa-camera text-primary"></i><span>东帮运输入口摄像头</span></div><span class="text-onlineGreen text-xs" title="当前状态：在线">在线</span></div><div class="py-1.5 flex justify-between items-center gap-2"><div class="flex items-center gap-1.5"><i class="fa fa-camera text-primary"></i><span>东帮皮带机头摄像头</span></div><span class="text-onlineGreen text-xs" title="当前状态：在线">在线</span></div><div class="py-1.5 flex justify-between items-center gap-2"><div class="flex items-center gap-1.5"><i class="fa fa-camera text-primary"></i><span>东帮采区-362水平回风巷摄像头</span></div><span class="text-onlineGreen text-xs" title="当前状态：在线">在线</span></div></div></div><div class="pl-4"><div class="tree-toggle flex items-center gap-1 py-1.5 cursor-pointer"><i class="fa fa-angle-down text-textSecondary tree-icon"></i><span>东帮采区 (14)</span></div><div class="pl-4 tree-node-children"><div class="py-1.5 flex justify-between items-center gap-2"><div class="flex items-center gap-1.5"><i class="fa fa-camera text-primary"></i><span>东帮采区-362水平运输巷摄像头</span></div><span class="text-onlineGreen text-xs" title="当前状态：在线">在线</span></div><div class="py-1.5 flex justify-between items-center gap-2"><div class="flex items-center gap-1.5"><i class="fa fa-camera text-primary"></i><span>东帮采区-412水平回风巷摄像头</span></div><span class="text-onlineGreen text-xs" title="当前状态：在线">在线</span></div><div class="py-1.5 flex justify-between items-center gap-2"><div class="flex items-center gap-1.5"><i class="fa fa-camera text-primary"></i><span>东帮皮带机尾摄像头</span></div><span class="text-onlineGreen text-xs" title="当前状态：在线">在线</span></div><div class="py-1.5 flex justify-between items-center gap-2"><div class="flex items-center gap-1.5"><i class="fa fa-camera text-primary"></i><span>东帮变电所摄像头</span></div><span class="text-onlineGreen text-xs" title="当前状态：在线">在线</span></div><div class="py-1.5 flex justify-between items-center gap-2"><div class="flex items-center gap-1.5"><i class="fa fa-camera text-primary"></i><span>东帮采区-462水平运输巷摄像头</span></div><span class="text-onlineGreen text-xs" title="当前状态：在线">在线</span></div><div class="py-1.5 flex justify-between items-center gap-2"><div class="flex items-center gap-1.5"><i class="fa fa-camera text-primary"></i><span>东帮集中仓执法记录仪</span></div><span class="text-onlineGreen text-xs" title="当前状态：在线">在线</span></div></div></div></div><div class="mb-3"><div class="tree-toggle flex items-center gap-1 py-1.5 cursor-pointer"><i class="fa fa-angle-right text-textSecondary tree-icon"></i><span>主运输区域 (18)</span></div><div class="pl-4 tree-node-children hidden"></div></div><div class="mb-3"><div class="tree-toggle flex items-center gap-1 py-1.5 cursor-pointer"><i class="fa fa-angle-right text-textSecondary tree-icon"></i><span>皮带运输系统 (22)</span></div><div class="pl-4 tree-node-children hidden"></div></div></div>
+<div id="panel-plan" class="flex-1 overflow-y-auto scrollbar-dark p-3 text-sm hidden" style="display:none!important">
+                    <div id="planFilterActions" class="mb-3 flex justify-end">
+                        <button id="cancelPlanFilters" type="button" class="px-3 py-1.5 rounded border border-primary text-primary text-xs hover:bg-primary/10">取消过滤</button>
+                    </div>
+                    <div id="planFilterBar" class="hidden mb-3 p-2.5 border border-primary/40 bg-primary/10 rounded-lg">
+                        <div class="text-xs text-textSecondary mb-2">当前仅展示：<span id="currentPlanName" class="text-textMain"></span></div>
+                        <button id="showAllPlans" type="button" class="w-full py-1.5 rounded bg-primary text-white text-xs hover:opacity-90">显示全部作业</button>
+                    </div>
+                    
+                    <div class="mb-3 p-2.5 border border-darkBorder rounded-lg hover:border-primary/40 cursor-pointer">
+                        <div class="font-medium mb-1.5 text-textMain">东帮658段采矿作业</div>
+                        
+                    </div>
+
+                    <div class="mb-3 p-2.5 border border-darkBorder rounded-lg hover:border-primary/40 cursor-pointer">
+                        <div class="font-medium mb-1.5 text-textMain">皮带运输巡检作业</div>
+                        <div class="text-textSecondary text-xs space-y-1">
+                             <div><span class="text-textSecondary">作业单位：</span>齐大山选矿厂</div>
+                            <div><span class="text-textSecondary">作业类型：</span>生产作业</div>
+                            <div><span class="text-textSecondary">二级分类：</span>采矿开挖</div>
+                            <div><span class="text-textSecondary">作业区域：</span>xxx一层区域-xxx二层区域</div>
+                            <div><span class="text-textSecondary">作业位置：</span>东帮658段工作面</div>
+                            <div><span class="text-textSecondary">作业时间：</span>2026‑08‑05 08:00 ~ 16:00</div>
+                            
+                            <div><span class="text-textSecondary">是否危险作业：</span><span class="tag-bg-red px-1 rounded text-xs">是</span></div>
+                            <div class="mt-2 pt-1 border-t border-darkBorder">
+                                <div class="text-textSecondary mb-1">关联摄像头：</div>
+                                <div class="flex flex-wrap gap-1">
+                                    <span class="tag-bg-blue text-xs px-1 rounded">固定×3</span>
+                                    <span class="tag-bg-orange text-xs px-1 rounded">移动×1</span>
+                                    <span class="tag-bg-red text-xs px-1 rounded">执法×0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3 p-2.5 border border-darkBorder rounded-lg hover:border-primary/40 cursor-pointer">
+                        <div class="font-medium mb-1.5 text-textMain">通风系统巡检作业</div>
+                        <div class="text-textSecondary text-xs space-y-1">
+                             <div><span class="text-textSecondary">作业单位：</span>齐大山选矿厂</div>
+                            <div><span class="text-textSecondary">作业类型：</span>生产作业</div>
+                            <div><span class="text-textSecondary">二级分类：</span>采矿开挖</div>
+                            <div><span class="text-textSecondary">作业区域：</span>xxx一层区域-xxx二层区域</div>
+                            <div><span class="text-textSecondary">作业位置：</span>东帮658段工作面</div>
+                            <div><span class="text-textSecondary">作业时间：</span>2026‑08‑05 08:00 ~ 16:00</div>
+                            
+                            <div><span class="text-textSecondary">是否危险作业：</span><span class="tag-bg-red px-1 rounded text-xs">是</span></div>
+                            <div class="mt-2 pt-1 border-t border-darkBorder">
+                                <div class="text-textSecondary mb-1">关联摄像头：</div>
+                                <div class="flex flex-wrap gap-1">
+                                    <span class="tag-bg-blue text-xs px-1 rounded">固定×3</span>
+                                    <span class="tag-bg-orange text-xs px-1 rounded">移动×1</span>
+                                    <span class="tag-bg-red text-xs px-1 rounded">执法×0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            
+            <div class="flex-1 flex flex-col overflow-hidden p-4">
+                
+                <div class="flex flex-wrap items-center gap-3 mb-4">
+                    
+                    
+                    
+                    
+                    <div class="flex items-center gap-2 px-3 py-1 rounded bg-darkBorder">
+                        <span class="text-sm">自动排序播放</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input id="auto-sort-play" type="checkbox" checked class="sr-only peer">
+                            <div class="w-9 h-5 bg-slate-600 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[&#x27;&#x27;] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                        </label>
+                    </div>
+                    <button class="px-3 py-1 rounded bg-darkBorder text-sm hover:bg-primary/20" onclick="openCarouselModal()">自动播放设置</button>
+                    <div class="flex items-center gap-2">
+                        <span class="text-textSecondary text-sm">宫格:</span>
+                        <select id="grid-select" class="bg-darkBorder rounded px-3 py-1 text-sm outline-none min-w-[100px] cursor-pointer" onchange="switchGrid(this.value)">
+                            <option value="1">1 宫格</option>
+                            <option value="4" selected>4 宫格</option>
+                            <option value="9">9 宫格</option>
+                        </select>
+                    </div>
+                    <button id="algorithm-management-btn" type="button" class="vi-alg-primary" onclick="window.openAlgorithmManager()" style="margin-left:auto">算法管理</button>
+                    <button id="fullscreen-display-btn" type="button" class="px-3 py-1 rounded bg-darkBorder text-sm hover:bg-primary/20 flex items-center gap-2" onclick="toggleFullscreenDisplay()">
+                        <i class="fa fa-expand"></i><span>全屏展示</span>
+                    </button>
+                    
+                </div>
+
+                
+                <div id="video-grid-fullscreen" class="flex-1 overflow-y-auto scrollbar-dark">
+                    <div class="video-grid grid grid-cols-3 gap-4">
+                        
+                        <div class="bg-darkPanel rounded-lg overflow-hidden video-card-shadow">
+                            <div class="video-img-wrap relative h-[240px] bg-slate-800">
+                                <img class="w-full h-full object-cover opacity-90">
+                                <div class="absolute top-2 left-2 flex gap-2">
+                                    
+                                    
+                                </div>
+                            </div>
+                            <div class="px-3 py-2 flex items-center justify-between">
+                                <span class="text-sm">东帮658段工作面摄像头</span>
+                                <span class="text-onlineGreen text-xs">在线</span>
+                            </div>
+                            
+                            <div class="px-3 pb-3 flex justify-end gap-5 text-textSecondary">
+                                <button onclick="window.location.href=&#x27;AI预警实时和倒查标记.html&#x27;" title="标记事件" class="cursor-pointer hover:text-primary focus:outline-none" style="background:none;border:none;padding:4px;">
+                                    <i class="fa fa-exclamation-triangle"></i>
+                                </button>
+                                <i class="fa fa-expand cursor-pointer" title="全屏"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-darkPanel rounded-lg overflow-hidden video-card-shadow">
+                            <div class="video-img-wrap relative h-[240px] bg-slate-800">
+                                <img class="w-full h-full object-cover opacity-90">
+                            </div>
+                            <div class="px-3 py-2 flex items-center justify-between">
+                                <span class="text-sm">东帮运输入口摄像头</span>
+                                <span class="text-onlineGreen text-xs">在线</span>
+                            </div>
+                             
+                            <div class="px-3 pb-3 flex justify-end gap-5 text-textSecondary">
+                                <button onclick="window.location.href=&#x27;AI预警实时和倒查标记.html&#x27;" title="标记事件" class="cursor-pointer hover:text-primary focus:outline-none" style="background:none;border:none;padding:4px;">
+                                    <i class="fa fa-exclamation-triangle"></i>
+                                </button>
+                                <i class="fa fa-expand cursor-pointer" title="全屏"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-darkPanel rounded-lg overflow-hidden video-card-shadow">
+                            <div class="video-img-wrap relative h-[240px] bg-slate-800">
+                                <img class="w-full h-full object-cover opacity-90">
+                                
+                                <div class="violation-rect w-[45px] h-[70px] absolute left-[62%] top-[32%]"></div>
+                                <div class="absolute left-[60%] top-[26%] bg-warnRed text-white text-xs px-1 rounded">未佩戴安全帽</div>
+                                <div class="absolute top-2 left-2 flex gap-2">
+                                    
+                                    
+                                </div>
+                            </div>
+                            <div class="px-3 py-2 flex items-center justify-between">
+                                <span class="text-sm">东帮皮带机头摄像头</span>
+                                <span class="text-onlineGreen text-xs">在线</span>
+                            </div>
+                             
+                            <div class="px-3 pb-3 flex justify-end gap-5 text-textSecondary">
+                                <button onclick="window.location.href=&#x27;AI预警实时和倒查标记.html&#x27;" title="标记事件" class="cursor-pointer hover:text-primary focus:outline-none" style="background:none;border:none;padding:4px;">
+                                    <i class="fa fa-exclamation-triangle"></i>
+                                </button>
+                                <i class="fa fa-expand cursor-pointer" title="全屏"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-darkPanel rounded-lg overflow-hidden video-card-shadow">
+                            <div class="video-img-wrap relative h-[240px] bg-slate-800">
+                                <img class="w-full h-full object-cover opacity-90">
+                                <div class="absolute top-2 left-2 flex gap-2">
+                                    
+                                </div>
+                            </div>
+                            <div class="px-3 py-2 flex items-center justify-between">
+                                <span class="text-sm">东帮采区-362水平回风巷摄像头</span>
+                                <span class="text-onlineGreen text-xs">在线</span>
+                            </div>
+                             
+                            <div class="px-3 pb-3 flex justify-end gap-5 text-textSecondary">
+                                <button onclick="window.location.href=&#x27;AI预警实时和倒查标记.html&#x27;" title="标记事件" class="cursor-pointer hover:text-primary focus:outline-none" style="background:none;border:none;padding:4px;">
+                                    <i class="fa fa-exclamation-triangle"></i>
+                                </button>
+                                <i class="fa fa-expand cursor-pointer" title="全屏"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-darkPanel rounded-lg overflow-hidden video-card-shadow">
+                            <div class="video-img-wrap relative h-[240px] bg-slate-800">
+                                <img class="w-full h-full object-cover opacity-90">
+                                <div class="absolute top-2 left-2 flex gap-2">
+                                    
+                                </div>
+                            </div>
+                            <div class="px-3 py-2 flex items-center justify-between">
+                                <span class="text-sm">东帮采区-362水平运输巷摄像头</span>
+                                <span class="text-onlineGreen text-xs">在线</span>
+                            </div>
+                             
+                            <div class="px-3 pb-3 flex justify-end gap-5 text-textSecondary">
+                                <button onclick="window.location.href=&#x27;AI预警实时和倒查标记.html&#x27;" title="标记事件" class="cursor-pointer hover:text-primary focus:outline-none" style="background:none;border:none;padding:4px;">
+                                    <i class="fa fa-exclamation-triangle"></i>
+                                </button>
+                                <i class="fa fa-expand cursor-pointer" title="全屏"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-darkPanel rounded-lg overflow-hidden video-card-shadow">
+                            <div class="video-img-wrap relative h-[240px] bg-slate-800">
+                                <img class="w-full h-full object-cover opacity-90">
+                                <div class="absolute top-2 left-2 flex gap-2">
+                                    
+                                </div>
+                            </div>
+                            <div class="px-3 py-2 flex items-center justify-between">
+                                <span class="text-sm">东帮采区-412水平回风巷摄像头</span>
+                                <span class="text-onlineGreen text-xs">在线</span>
+                            </div>
+                            
+                            <div class="px-3 pb-3 flex justify-end gap-5 text-textSecondary">
+                                <button onclick="window.location.href=&#x27;AI预警实时和倒查标记.html&#x27;" title="标记事件" class="cursor-pointer hover:text-primary focus:outline-none" style="background:none;border:none;padding:4px;">
+                                    <i class="fa fa-exclamation-triangle"></i>
+                                </button>
+                                <i class="fa fa-expand cursor-pointer" title="全屏"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-darkPanel rounded-lg overflow-hidden video-card-shadow">
+                            <div class="video-img-wrap relative h-[240px] bg-slate-800">
+                                <img class="w-full h-full object-cover opacity-90">
+                                <div class="violation-rect w-[42px] h-[68px] absolute left-[58%] top-[30%]"></div>
+                                <div class="absolute left-[56%] top-[24%] bg-warnRed text-white text-xs px-1 rounded">未佩戴安全帽</div>
+                                <div class="absolute top-2 left-2 flex gap-2">
+                                    <span class="tag-bg-red text-xs px-1.5 rounded">未佩戴安全帽</span>
+                                </div>
+                            </div>
+                            <div class="px-3 py-2 flex items-center justify-between">
+                                <span class="text-sm">主运输巷-123水平回风摄像头</span>
+                                <span class="text-onlineGreen text-xs">在线</span>
+                            </div>
+                             
+                            <div class="px-3 pb-3 flex justify-end gap-5 text-textSecondary">
+                                <button onclick="window.location.href=&#x27;AI预警实时和倒查标记.html&#x27;" title="标记事件" class="cursor-pointer hover:text-primary focus:outline-none" style="background:none;border:none;padding:4px;">
+                                    <i class="fa fa-exclamation-triangle"></i>
+                                </button>
+                                <i class="fa fa-expand cursor-pointer" title="全屏"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-darkPanel rounded-lg overflow-hidden video-card-shadow">
+                            <div class="video-img-wrap relative h-[240px] bg-slate-800">
+                                <img class="w-full h-full object-cover opacity-90">
+                            </div>
+                            <div class="px-3 py-2 flex items-center justify-between">
+                                <span class="text-sm">皮带运输系统摄像头</span>
+                                <span class="text-onlineGreen text-xs">在线</span>
+                            </div>
+                            
+                            <div class="px-3 pb-3 flex justify-end gap-5 text-textSecondary">
+                                <button onclick="window.location.href=&#x27;AI预警实时和倒查标记.html&#x27;" title="标记事件" class="cursor-pointer hover:text-primary focus:outline-none" style="background:none;border:none;padding:4px;">
+                                    <i class="fa fa-exclamation-triangle"></i>
+                                </button>
+                                <i class="fa fa-expand cursor-pointer" title="全屏"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-darkPanel rounded-lg overflow-hidden video-card-shadow">
+                            <div class="video-img-wrap relative h-[240px] bg-slate-800">
+                                <img class="w-full h-full object-cover opacity-90">
+                                <div class="absolute top-2 left-2 flex gap-2">
+                                    
+                                    
+                                </div>
+                            </div>
+                            <div class="px-3 py-2 flex items-center justify-between">
+                                
+                                <span class="text-onlineGreen text-xs">在线</span>
+                            </div>
+                            
+                            <div class="px-3 pb-3 flex justify-end gap-5 text-textSecondary">
+                                <button onclick="window.location.href=&#x27;AI预警实时和倒查标记.html&#x27;" title="标记事件" class="cursor-pointer hover:text-primary focus:outline-none" style="background:none;border:none;padding:4px;">
+                                    <i class="fa fa-exclamation-triangle"></i>
+                                </button>
+                                <i class="fa fa-expand cursor-pointer" title="全屏"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-darkPanel rounded-lg overflow-hidden video-card-shadow">
+                            <div class="video-img-wrap relative h-[240px] bg-slate-800">
+                                <img class="w-full h-full object-cover opacity-90">
+                                <div class="absolute top-2 left-2 flex gap-2">
+                                    
+                                </div>
+                            </div>
+                            <div class="px-3 py-2 flex items-center justify-between">
+                                <span class="text-sm">东帮采区-412水平回风巷摄像头</span>
+                                <span class="text-onlineGreen text-xs">在线</span>
+                            </div>
+                             
+                            <div class="px-3 pb-3 flex justify-end gap-5 text-textSecondary">
+                                <button onclick="window.location.href=&#x27;AI预警实时和倒查标记.html&#x27;" title="标记事件" class="cursor-pointer hover:text-primary focus:outline-none" style="background:none;border:none;padding:4px;">
+                                    <i class="fa fa-exclamation-triangle"></i>
+                                </button>
+                                <i class="fa fa-expand cursor-pointer" title="全屏"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-darkPanel rounded-lg overflow-hidden video-card-shadow">
+                            <div class="video-img-wrap relative h-[240px] bg-slate-800">
+                                <img class="w-full h-full object-cover opacity-90">
+                                <div class="absolute top-2 left-2 flex gap-2">
+                                    
+                                </div>
+                            </div>
+                            <div class="px-3 py-2 flex items-center justify-between">
+                                <span class="text-sm">东帮采区-462水平运输巷摄像头</span>
+                                <span class="text-onlineGreen text-xs">在线</span>
+                            </div>
+                             
+                            <div class="px-3 pb-3 flex justify-end gap-5 text-textSecondary">
+                                <button onclick="window.location.href=&#x27;AI预警实时和倒查标记.html&#x27;" title="标记事件" class="cursor-pointer hover:text-primary focus:outline-none" style="background:none;border:none;padding:4px;">
+                                    <i class="fa fa-exclamation-triangle"></i>
+                                </button>
+                                <i class="fa fa-expand cursor-pointer" title="全屏"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-darkPanel rounded-lg overflow-hidden video-card-shadow">
+                            <div class="video-img-wrap relative h-[240px] bg-slate-800">
+                                <img class="w-full h-full object-cover opacity-90">
+                            </div>
+                            <div class="px-3 py-2 flex items-center justify-between">
+                                <span class="text-sm">东帮变电所摄像头</span>
+                                <span class="text-onlineGreen text-xs">在线</span>
+                            </div>
+                            <div class="px-3 pb-3 flex justify-between text-textSecondary">
+                                <i class="fa fa-picture-o cursor-pointer" title="拍照"></i>
+                                <i class="fa fa-search-plus cursor-pointer" title="放大"></i>
+                                <i class="fa fa-exclamation-triangle cursor-pointer" title="标记事件" onclick="window.location.href=&#x27;AI预警实时和倒查标记.html&#x27;"></i>
+                                <i class="fa fa-volume-up cursor-pointer" title="音量"></i>
+                                <i class="fa fa-expand cursor-pointer" title="全屏"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+      
+
+    
+    <div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="closeAllSidebars()"></div>
+
+    
+    <div id="sidebar-job" class="fixed top-0 right-0 h-full w-[480px] bg-darkPanel border-l border-darkBorder z-50 transform translate-x-full transition-transform duration-300 flex flex-col shadow-2xl" style="display:none!important">
+        <div class="px-5 py-4 border-b border-darkBorder flex items-center justify-between flex-shrink-0">
+            <div class="flex items-center gap-2">
+                <i class="fa fa-file-text-o text-primary"></i>
+                <span class="text-lg font-semibold">作业详情</span>
+            </div>
+            <i class="fa fa-times text-textSecondary cursor-pointer hover:text-textMain" onclick="closeAllSidebars()"></i>
+        </div>
+        <div class="flex-1 overflow-y-auto scrollbar-dark p-5 space-y-5">
+            
+            <div>
+                <div class="text-sm text-textSecondary mb-2">作业内容</div>
+                <div class="text-base font-medium" id="job-name">—</div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <div class="text-sm text-textSecondary mb-2">作业状态</div>
+                    <div class="inline-flex items-center gap-1 tag-bg-blue text-sm px-2 py-0.5 rounded">
+                        <i class="fa fa-play-circle-o"></i><span>进行中</span>
+                    </div>
+                </div>
+                <div>
+                    <div class="text-sm text-textSecondary mb-2">是否危险作业</div>
+                    <div class="inline-flex items-center tag-bg-red text-sm px-2 py-0.5 rounded">是</div>
+                </div>
+            </div>
+            
+            <div class="bg-darkBg rounded-lg p-4 space-y-3 text-sm">
+                <div class="flex">
+                    <span class="text-textSecondary w-24 flex-shrink-0">作业单位</span>
+                    <span class="text-textMain">xxxx相关方企业名称</span>
+                </div>
+                <div class="flex">
+                    <span class="text-textSecondary w-24 flex-shrink-0">所属单位</span>
+                    <span class="text-textMain">齐大山选矿厂</span>
+                </div>
+                <div class="flex">
+                    <span class="text-textSecondary w-24 flex-shrink-0">作业类型</span>
+                    <span class="text-textMain">生产作业</span>
+                </div>
+                <div class="flex">
+                    <span class="text-textSecondary w-24 flex-shrink-0">二级分类</span>
+                    <span class="text-textMain" id="job-type-sub">采矿开挖</span>
+                </div>
+                <div class="flex">
+                    <span class="text-textSecondary w-24 flex-shrink-0">作业区域</span>
+                    <span class="text-textMain" id="job-location">—</span>
+                </div>
+                <div class="flex">
+                    <span class="text-textSecondary w-24 flex-shrink-0">作业位置</span>
+                    <span class="text-textMain" id="job-location">—</span>
+                </div>
+                <div class="flex">
+                    <span class="text-textSecondary w-24 flex-shrink-0">作业时间</span>
+                    <span class="text-textMain" id="job-time">—</span>
+                </div>
+                <div class="flex">
+                    <span class="text-textSecondary w-24 flex-shrink-0">备注</span>
+                    <span class="text-textMain" id="job-owner">—</span>
+                </div>
+                
+            </div>
+            
+            <div>
+                <div class="text-sm text-textSecondary mb-2">作业人员 (5)</div>
+                <div class="flex flex-wrap gap-3">
+                    <div class="flex items-center gap-2 bg-darkBg rounded px-3 py-1.5">
+                        <div class="w-6 h-6 rounded-full bg-primary/30 flex items-center justify-center text-xs">王</div>
+                        <span class="text-sm">王矿长</span>
+                    </div>
+                    <div class="flex items-center gap-2 bg-darkBg rounded px-3 py-1.5">
+                        <div class="w-6 h-6 rounded-full bg-primary/30 flex items-center justify-center text-xs">李</div>
+                        <span class="text-sm">李师傅</span>
+                    </div>
+                    <div class="flex items-center gap-2 bg-darkBg rounded px-3 py-1.5">
+                        <div class="w-6 h-6 rounded-full bg-primary/30 flex items-center justify-center text-xs">赵</div>
+                        <span class="text-sm">赵操作</span>
+                    </div>
+                    <div class="flex items-center gap-2 bg-darkBg rounded px-3 py-1.5">
+                        <div class="w-6 h-6 rounded-full bg-primary/30 flex items-center justify-center text-xs">张</div>
+                        <span class="text-sm">张安全</span>
+                    </div>
+                    <div class="flex items-center gap-2 bg-darkBg rounded px-3 py-1.5">
+                        <div class="w-6 h-6 rounded-full bg-primary/30 flex items-center justify-center text-xs">刘</div>
+                        <span class="text-sm">刘监护</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="text-sm text-textSecondary mb-2">关联摄像头 (4)</div>
+                <div class="space-y-2">
+                    <div class="bg-darkBg rounded px-3 py-2 flex items-center justify-between text-sm">
+                        <div class="flex items-center gap-2"><i class="fa fa-camera text-primary"></i><span>东帮658段工作面摄像头</span></div>
+                        <span class="text-onlineGreen text-xs">在线</span>
+                    <span class="text-onlineGreen text-xs" title="当前状态：在线">在线</span></div>
+                    <div class="bg-darkBg rounded px-3 py-2 flex items-center justify-between text-sm">
+                        <div class="flex items-center gap-2"><i class="fa fa-camera text-primary"></i><span>东帮运输入口摄像头</span></div>
+                        <span class="text-onlineGreen text-xs">在线</span>
+                    <span class="text-onlineGreen text-xs" title="当前状态：在线">在线</span></div>
+                    <div class="bg-darkBg rounded px-3 py-2 flex items-center justify-between text-sm">
+                        <div class="flex items-center gap-2"><i class="fa fa-mobile text-orange-400"></i><span>东帮皮带机头摄像头</span></div>
+                        <span class="text-onlineGreen text-xs">在线</span>
+                    <span class="text-onlineGreen text-xs" title="当前状态：在线">在线</span></div>
+                    <div class="bg-darkBg rounded px-3 py-2 flex items-center justify-between text-sm">
+                        <div class="flex items-center gap-2"><i class="fa fa-hand-video-camera text-red-400"></i><span>东帮集中仓执法记录仪</span></div>
+                        <span class="text-onlineGreen text-xs">在线</span>
+                    <span class="text-onlineGreen text-xs" title="当前状态：在线">在线</span></div>
+                </div>
+            </div>
+            
+            
+        </div>
+        <div class="border-t border-darkBorder px-5 py-3 flex justify-end gap-3 flex-shrink-0">
+            <button class="px-4 py-1.5 rounded bg-darkBorder text-sm hover:bg-primary/20" onclick="closeAllSidebars()">关闭</button>
+            
+        </div>
+    </div>
+
+    
+    <div id="sidebar-alert" class="fixed top-0 right-0 h-full w-[480px] bg-darkPanel border-l border-darkBorder z-50 transform translate-x-full transition-transform duration-300 flex flex-col shadow-2xl">
+        <div class="px-5 py-4 border-b border-darkBorder flex items-center justify-between flex-shrink-0">
+            <div class="flex items-center gap-2">
+                <i class="fa fa-bell text-warnRed"></i>
+                <span class="text-lg font-semibold">预警消息列表</span>
+                <span class="text-warnRed text-xs">(12)</span>
+            </div>
+            <i class="fa fa-times text-textSecondary cursor-pointer hover:text-textMain" onclick="closeAllSidebars()"></i>
+        </div>
+        
+        <div class="px-5 py-3 border-b border-darkBorder flex flex-wrap gap-3 text-sm flex-shrink-0">
+            <select class="bg-darkBorder rounded px-3 py-1 text-sm outline-none min-w-[90px]">
+                <option>全部等级</option>
+                <option>严重</option>
+                <option>一般</option>
+                <option>提示</option>
+            </select>
+            <select class="bg-darkBorder rounded px-3 py-1 text-sm outline-none min-w-[110px]">
+                <option>全部类型</option>
+                <option>未佩戴安全帽</option>
+                <option>未穿工作服</option>
+                <option>人员长时间停留</option>
+                <option>越界闯入</option>
+            </select>
+            <input type="text" placeholder="搜索摄像头/区域" class="bg-darkBorder rounded px-3 py-1 text-sm outline-none flex-1 min-w-[160px]">
+        </div>
+        <div class="flex-1 overflow-y-auto scrollbar-dark">
+            
+            <div class="px-5 py-3 border-b border-darkBorder hover:bg-primary/5 cursor-pointer alert-item">
+                <div class="flex items-start gap-3">
+                    <i class="fa fa-exclamation-triangle text-warnRed mt-0.5"></i>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between mb-1">
+                            <div class="font-medium">未佩戴安全帽</div>
+                            <span class="tag-bg-red text-xs px-1.5 rounded">严重</span>
+                        </div>
+                        <div class="text-textSecondary text-xs mb-1">主运输巷-123水平回风摄像头</div>
+                        <div class="flex items-center justify-between">
+                            <div class="text-textSecondary text-xs">2026-08-07 10:30:15</div>
+                            <button class="text-primary text-xs" onclick="parent.postMessage({type:&#x27;duolun-video-nav&#x27;,nav:&#x27;alarms&#x27;},&#x27;*&#x27;)">查看报警</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="px-5 py-3 border-b border-darkBorder hover:bg-primary/5 cursor-pointer alert-item">
+                <div class="flex items-start gap-3">
+                    <i class="fa fa-exclamation-triangle text-warnRed mt-0.5"></i>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between mb-1">
+                            
+                            <span class="tag-bg-red text-xs px-1.5 rounded">严重</span>
+                        </div>
+                        <div class="text-textSecondary text-xs mb-1">东帮采区-362水平回风巷摄像头</div>
+                        <div class="flex items-center justify-between">
+                            <div class="text-textSecondary text-xs">2026-08-07 10:30:21</div>
+                            <div class="flex gap-3">
+                                
+                                
+                                <button class="text-textSecondary text-xs" onclick="requestIgnoreAlert(this)">关闭提醒</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="px-5 py-3 border-b border-darkBorder hover:bg-primary/5 cursor-pointer alert-item">
+                <div class="flex items-start gap-3">
+                    <i class="fa fa-exclamation-triangle text-orange-400 mt-0.5"></i>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between mb-1">
+                            
+                            <span class="tag-bg-orange text-xs px-1.5 rounded">一般</span>
+                        </div>
+                        <div class="text-textSecondary text-xs mb-1">东帮皮带机头摄像头</div>
+                        <div class="flex items-center justify-between">
+                            <div class="text-textSecondary text-xs">2026-08-07 10:30:18</div>
+                            <div class="flex gap-3">
+                                
+                                
+                                <button class="text-textSecondary text-xs" onclick="requestIgnoreAlert(this)">关闭提醒</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="px-5 py-3 border-b border-darkBorder hover:bg-primary/5 cursor-pointer alert-item">
+                <div class="flex items-start gap-3">
+                    <i class="fa fa-exclamation-triangle text-warnRed mt-0.5"></i>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between mb-1">
+                            <div class="font-medium">越界闯入</div>
+                            <span class="tag-bg-red text-xs px-1.5 rounded">严重</span>
+                        </div>
+                        <div class="text-textSecondary text-xs mb-1">东帮658段工作面摄像头</div>
+                        <div class="flex items-center justify-between">
+                            <div class="text-textSecondary text-xs">2026-08-07 10:28:45</div>
+                            <button class="text-primary text-xs" onclick="parent.postMessage({type:&#x27;duolun-video-nav&#x27;,nav:&#x27;alarms&#x27;},&#x27;*&#x27;)">查看报警</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="px-5 py-3 border-b border-darkBorder hover:bg-primary/5 cursor-pointer alert-item">
+                <div class="flex items-start gap-3">
+                    <i class="fa fa-exclamation-triangle text-orange-400 mt-0.5"></i>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between mb-1">
+                            <div class="font-medium">未穿工作服</div>
+                            <span class="tag-bg-orange text-xs px-1.5 rounded">一般</span>
+                        </div>
+                        <div class="text-textSecondary text-xs mb-1">东帮变电所摄像头</div>
+                        <div class="flex items-center justify-between">
+                            <div class="text-textSecondary text-xs">2026-08-07 10:25:12</div>
+                            <button class="text-primary text-xs" onclick="parent.postMessage({type:&#x27;duolun-video-nav&#x27;,nav:&#x27;alarms&#x27;},&#x27;*&#x27;)">查看报警</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="px-5 py-3 border-b border-darkBorder hover:bg-primary/5 cursor-pointer alert-item">
+                <div class="flex items-start gap-3">
+                    <i class="fa fa-exclamation-triangle text-sky-400 mt-0.5"></i>
+                    
+                </div>
+            </div>
+            <div class="px-5 py-3 border-b border-darkBorder hover:bg-primary/5 cursor-pointer alert-item">
+                <div class="flex items-start gap-3">
+                    <i class="fa fa-exclamation-triangle text-warnRed mt-0.5"></i>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between mb-1">
+                            <div class="font-medium">未佩戴安全帽</div>
+                            <span class="tag-bg-red text-xs px-1.5 rounded">严重</span>
+                        </div>
+                        <div class="text-textSecondary text-xs mb-1">东帮采区-412水平回风巷摄像头</div>
+                        <div class="flex items-center justify-between">
+                            <div class="text-textSecondary text-xs">2026-08-07 10:18:33</div>
+                            <button class="text-primary text-xs" onclick="parent.postMessage({type:&#x27;duolun-video-nav&#x27;,nav:&#x27;alarms&#x27;},&#x27;*&#x27;)">查看报警</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="px-5 py-3 border-b border-darkBorder hover:bg-primary/5 cursor-pointer alert-item">
+                <div class="flex items-start gap-3">
+                    <i class="fa fa-exclamation-triangle text-orange-400 mt-0.5"></i>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between mb-1">
+                            <div class="font-medium">人员聚集</div>
+                            <span class="tag-bg-orange text-xs px-1.5 rounded">一般</span>
+                        </div>
+                        <div class="text-textSecondary text-xs mb-1">皮带运输系统摄像头</div>
+                        <div class="flex items-center justify-between">
+                            <div class="text-textSecondary text-xs">2026-08-07 10:15:42</div>
+                            <button class="text-primary text-xs" onclick="parent.postMessage({type:&#x27;duolun-video-nav&#x27;,nav:&#x27;alarms&#x27;},&#x27;*&#x27;)">查看报警</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="px-5 py-3 border-b border-darkBorder hover:bg-primary/5 cursor-pointer alert-item">
+                <div class="flex items-start gap-3">
+                    <i class="fa fa-exclamation-triangle text-warnRed mt-0.5"></i>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between mb-1">
+                            <div class="font-medium">吸烟行为</div>
+                            <span class="tag-bg-red text-xs px-1.5 rounded">严重</span>
+                        </div>
+                        <div class="text-textSecondary text-xs mb-1">东帮采区-462水平运输巷摄像头</div>
+                        <div class="flex items-center justify-between">
+                            <div class="text-textSecondary text-xs">2026-08-07 10:10:28</div>
+                            <button class="text-primary text-xs" onclick="parent.postMessage({type:&#x27;duolun-video-nav&#x27;,nav:&#x27;alarms&#x27;},&#x27;*&#x27;)">查看报警</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="px-5 py-3 border-b border-darkBorder hover:bg-primary/5 cursor-pointer alert-item">
+                <div class="flex items-start gap-3">
+                    <i class="fa fa-exclamation-triangle text-warnRed mt-0.5"></i>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between mb-1">
+                            <div class="font-medium">未佩戴安全帽</div>
+                            <span class="tag-bg-red text-xs px-1.5 rounded">严重</span>
+                        </div>
+                        <div class="text-textSecondary text-xs mb-1">东帮运输入口摄像头</div>
+                        <div class="flex items-center justify-between">
+                            <div class="text-textSecondary text-xs">2026-08-07 10:05:11</div>
+                            <button class="text-primary text-xs" onclick="parent.postMessage({type:&#x27;duolun-video-nav&#x27;,nav:&#x27;alarms&#x27;},&#x27;*&#x27;)">查看报警</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="px-5 py-3 border-b border-darkBorder hover:bg-primary/5 cursor-pointer alert-item">
+                <div class="flex items-start gap-3">
+                    <i class="fa fa-exclamation-triangle text-orange-400 mt-0.5"></i>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between mb-1">
+                            
+                            <span class="tag-bg-orange text-xs px-1.5 rounded">一般</span>
+                        </div>
+                        <div class="text-textSecondary text-xs mb-1">主运输区域摄像头</div>
+                        <div class="flex items-center justify-between">
+                            <div class="text-textSecondary text-xs">2026-08-07 10:02:56</div>
+                            <div class="flex gap-3">
+                                
+                                
+                                <button class="text-textSecondary text-xs" onclick="requestIgnoreAlert(this)">关闭提醒</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+                
+                    
+                    
+                        
+                    
+                
+            
+        </div>
+        <div class="border-t border-darkBorder px-5 py-3 flex items-center justify-between flex-shrink-0">
+            <span class="text-textSecondary text-xs">共 12 条预警 · 未处理 12</span>
+            <div class="flex gap-3">
+                <button class="px-4 py-1.5 rounded bg-darkBorder text-sm hover:bg-primary/20" onclick="closeAllSidebars()">关闭</button>
+                
+            </div>
+        </div>
+    </div>
+
+    
+    <div id="ignore-alert-modal" class="fixed inset-0 bg-black/60 z-[70] hidden flex items-center justify-center px-4" style="backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)" onclick="closeIgnoreAlertModal()">
+        <div class="w-[440px] max-w-full bg-darkPanel rounded-xl border border-darkBorder shadow-2xl" onclick="event.stopPropagation()">
+            <div class="px-6 pt-6 pb-4 flex items-start gap-4">
+                <div class="w-11 h-11 rounded-full bg-orange-500/15 text-orange-400 flex items-center justify-center shrink-0">
+                    <i class="fa fa-exclamation-triangle text-lg"></i>
+                </div>
+                <div class="min-w-0">
+                    <h3 class="text-lg font-semibold text-textMain">关闭这条提醒？</h3>
+                    <p class="text-textSecondary text-sm mt-2 leading-6">关闭摄像头“<span id="ignore-alert-camera" class="text-textMain"></span>”的这条“<span id="ignore-alert-type" class="text-textMain"></span>”提醒。</p><p class="text-textSecondary text-xs mt-2">仅关闭当前提醒，报警保留在实时报警中心，核查和处理状态不变。新的报警仍会提醒。</p>
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-darkBorder flex justify-end gap-3">
+                <button class="px-5 py-2 rounded bg-darkBorder text-sm hover:bg-primary/20" onclick="closeIgnoreAlertModal()">取消</button>
+                <button class="px-5 py-2 rounded bg-orange-500 text-white text-sm hover:bg-orange-600" onclick="confirmIgnoreAlert()">关闭提醒</button>
+            </div>
+        </div>
+    </div>
+
+    
+    <div id="carousel-modal" class="fixed inset-0 bg-black/60 z-[60] hidden flex items-center justify-center" style="backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)" onclick="closeCarouselModal()">
+        <div class="w-[920px] max-h-[90vh] overflow-y-auto scrollbar-dark bg-darkPanel rounded-xl border border-darkBorder shadow-2xl text-textMain" onclick="event.stopPropagation()">
+            
+            <div class="flex items-center justify-between px-6 py-5 border-b border-darkBorder sticky top-0 bg-darkPanel z-10">
+                <h3 class="text-xl font-semibold">自动播放设置</h3>
+                <button class="text-textSecondary hover:text-textMain text-xl" onclick="closeCarouselModal()">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+
+            <div class="px-6 py-5">
+                <p class="text-textSecondary text-sm mb-6">配置视频画面轮播的优先级规则，系统将按照以下顺序自动播放摄像头画面</p>
+
+                
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="text-primary">|</span>
+                        <h4 class="text-base">1. 轮播排序规则</h4>
+                        <span class="text-textSecondary text-xs">按优先级从高到低轮播，序号越靠前优先级越高</span>
+                    </div>
+
+                    
+                    <div class="grid grid-cols-[80px_220px_1fr_40px] gap-3 bg-darkBg/60 px-4 py-3 rounded-t-md text-textSecondary text-sm">
+                        <div>排序</div>
+                        <div>规则名称</div>
+                        <div>说明</div>
+                        <div></div>
+                    </div>
+
+                    
+                    <div class="border border-t-0 border-darkBorder rounded-b-md divide-y divide-darkBorder">
+                        <div class="grid grid-cols-[80px_220px_1fr_40px] gap-3 px-4 py-3 items-center">
+                            <div class="flex items-center gap-2">
+                                <i class="fa fa-bars text-textSecondary cursor-move"></i>
+                                <span class="w-6 h-6 rounded bg-warnRed flex items-center justify-center text-xs font-medium">1</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="fa fa-exclamation-triangle text-warnRed"></i>
+                                <span>事件异常告警</span>
+                            </div>
+                            <div class="text-textSecondary text-sm">包括事件行为识别、异常事件告警等</div>
+                            <div><i class="fa  text-textSecondary"></i></div>
+                        </div>
+                        
+                        
+                        <div class="grid grid-cols-[80px_220px_1fr_40px] gap-3 px-4 py-3 items-center">
+                            <div class="flex items-center gap-2">
+                                <i class="fa fa-bars text-textSecondary cursor-move"></i>
+                                <span class="w-6 h-6 rounded bg-purple-600 flex items-center justify-center text-xs font-medium">2</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="fa fa-shield text-purple-400"></i>
+                                <span>高风险区域（重大风险、较大风险）</span>
+                            </div>
+                            <div class="text-textSecondary text-sm">重大风险区域、较大风险区域监控画面</div>
+                            <div><i class="fa text-textSecondary"></i></div>
+                        </div>
+                        <div class="grid grid-cols-[80px_220px_1fr_40px] gap-3 px-4 py-3 items-center">
+                            <div class="flex items-center gap-2">
+                                <i class="fa fa-bars text-textSecondary cursor-move"></i>
+                                <span class="w-6 h-6 rounded bg-onlineGreen flex items-center justify-center text-xs font-medium">3</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="fa fa-clock-o text-onlineGreen"></i>
+                                
+                            </div>
+                            <div class="text-textSecondary text-sm">人员在监控区域内长时间停留的告警画面</div>
+                            <div><i class="fa text-textSecondary"></i></div>
+                        </div>
+                    </div>
+
+                    <p class="text-textSecondary text-xs mt-4"><i class="fa fa-info-circle mr-1 text-primary"></i>系统将根据上述优先级顺序自动轮播摄像头，当高优先级事件停止后，继续按照当前顺序轮播</p>
+                </div>
+            </div>
+
+            
+            <div class="flex justify-end gap-4 px-6 py-5 border-t border-darkBorder sticky bottom-0 bg-darkPanel">
+                <button class="px-6 py-2 rounded bg-darkBorder hover:bg-primary/20 text-sm" onclick="closeCarouselModal()">取消</button>
+                <button class="px-6 py-2 rounded bg-primary hover:opacity-90 text-white text-sm" onclick="closeCarouselModal()">保存设置</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="camera-registry.js?v=1"></script><script>
+        function switchLeftTab(tab) {
+            const areaTab = document.getElementById('tab-area');
+            const planTab = document.getElementById('tab-plan');
+            const areaPanel = document.getElementById('panel-area');
+            const planPanel = document.getElementById('panel-plan');
+            if (tab === 'area') {
+                areaTab.classList.add('tab-active');
+                areaTab.classList.remove('text-textSecondary');
+                planTab.classList.remove('tab-active');
+                planTab.classList.add('text-textSecondary');
+                areaPanel.classList.remove('hidden');
+                planPanel.classList.add('hidden');
+            } else {
+                planTab.classList.add('tab-active');
+                planTab.classList.remove('text-textSecondary');
+                areaTab.classList.remove('tab-active');
+                areaTab.classList.add('text-textSecondary');
+                planPanel.classList.remove('hidden');
+                areaPanel.classList.add('hidden');
+            }
+        }
+
+        function initializePlanLink() {
+            const params = new URLSearchParams(window.location.search);
+            const targetTab = params.get('tab');
+            const mode = 'key-area';
+            const jobName = params.get('job');
+            const fromPage = null;
+            const returnButton = document.getElementById('returnToSource');
+            const filterBar = document.getElementById('planFilterBar');
+            const planPanel = document.getElementById('panel-plan');
+            const filterActions = document.getElementById('planFilterActions');
+            const planCards = [...planPanel.children].filter(item => item !== filterBar && item !== filterActions);
+
+            if (fromPage) {
+                returnButton.classList.remove('hidden');
+                returnButton.addEventListener('click', () => { window.location.href = fromPage; });
+            }
+            if (mode === 'key-area') {
+                switchLeftTab('area');
+                document.getElementById('left-tabs').classList.add('hidden');
+            } else if (mode === 'work-monitor') {
+                switchLeftTab('plan');
+                document.getElementById('left-tabs').classList.add('hidden');
+            } else if (targetTab === 'plan' || jobName) switchLeftTab('plan');
+            if (!jobName) return;
+
+            document.getElementById('currentPlanName').textContent = jobName;
+            filterBar.classList.remove('hidden');
+            const normalizePlanName = value => value.replace(/矿段/g, '段').replace(/\s+/g, '');
+            const normalizedJobName = normalizePlanName(jobName);
+            planCards.forEach(card => {
+                const title = card.querySelector('.font-medium')?.textContent.trim() || '';
+                card.classList.toggle('hidden', normalizePlanName(title) !== normalizedJobName);
+            });
+            document.getElementById('showAllPlans').addEventListener('click', () => {
+                planCards.forEach(card => card.classList.remove('hidden'));
+                filterBar.classList.add('hidden');
+            });
+        }
+
+        initializePlanLink();
+
+        document.getElementById('cancelPlanFilters').addEventListener('click', () => {
+            const planPanel = document.getElementById('panel-plan');
+            const filterBar = document.getElementById('planFilterBar');
+            const filterActions = document.getElementById('planFilterActions');
+            [...planPanel.children].forEach(item => {
+                if (item !== filterBar && item !== filterActions) item.classList.remove('hidden');
+            });
+            filterBar.classList.add('hidden');
+        });
+
+        document.querySelectorAll('.tree-toggle').forEach(node => {
+            node.addEventListener('click', () => {
+                const icon = node.querySelector('.tree-icon');
+                const next = node.nextElementSibling;
+                if (next && next.classList.contains('tree-node-children')) {
+                    next.classList.toggle('hidden');
+                    if (icon) {
+                        icon.classList.toggle('fa-angle-down');
+                        icon.classList.toggle('fa-angle-right');
+                    }
+                }
+            });
+        });
+
+        // 宫格切换：修改视频grid的grid-cols、视频卡片高度
+        function switchGrid(cols) {
+            const grid = document.querySelector('.video-grid');
+            if (!grid) return;
+            cols = parseInt(cols, 10) || 4;
+            grid.style.removeProperty('grid-template-columns');
+            grid.style.removeProperty('grid-template-rows');
+            const gridRoot = document.getElementById('video-grid-fullscreen');
+            // 移除旧的grid-cols类
+            ['grid-cols-1','grid-cols-2','grid-cols-3','grid-cols-4','grid-cols-5','grid-cols-6','grid-cols-7','grid-cols-8','grid-cols-9','grid-cols-16'].forEach(cls => grid.classList.remove(cls));
+            if (cols === 1) grid.classList.add('grid-cols-1');
+            else if (cols === 4) grid.classList.add('grid-cols-2');
+            else if (cols === 9) grid.classList.add('grid-cols-3');
+            else if (cols === 16) grid.classList.add('grid-cols-4');
+            grid.classList.toggle('grid-single-layout', cols === 1);
+            if(gridRoot)gridRoot.classList.toggle('grid-single-active',cols===1);
+            grid.classList.toggle('grid-nine-layout', cols === 9);
+            grid.classList.toggle('grid-four-layout', cols === 4);
+            if(gridRoot)gridRoot.classList.toggle('grid-four-active',cols===4);
+            if (gridRoot) gridRoot.classList.toggle('grid-nine-active', cols === 9);
+            // 调整视频区高度：宫格数越多，单格越矮
+            const heights = { 1: 'h-[600px]', 4: 'h-[300px]', 9: 'h-[220px]', 16: 'h-[160px]' };
+            const target = heights[cols] || 'h-[240px]';
+            document.querySelectorAll('.video-img-wrap').forEach(el => {
+                ['h-[600px]','h-[300px]','h-[240px]','h-[220px]','h-[160px]'].forEach(h => el.classList.remove(h));
+                el.classList.add(target);
+            });
+        }
+
+        function runVideoQuery(button) {
+            const label = button.querySelector('span');
+            const icon = button.querySelector('i');
+            button.disabled = true;
+            label.textContent = '查询中';
+            icon.className = 'fa fa-spinner fa-spin';
+            setTimeout(() => {
+                label.textContent = '查询';
+                icon.className = 'fa fa-search';
+                button.disabled = false;
+            }, 700);
+        }
+
+        // 仅视频栅格区域全屏展示
+        function toggleFullscreenDisplay() {
+            const root = document.getElementById('video-grid-fullscreen');
+            if (!root) return;
+            const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement;
+            if (!fullscreenElement) {
+                const request = root.requestFullscreen || root.webkitRequestFullscreen;
+                if (request) request.call(root);
+            } else {
+                const exit = document.exitFullscreen || document.webkitExitFullscreen;
+                if (exit) exit.call(document);
+            }
+        }
+
+        function syncFullscreenButton() {
+            const button = document.getElementById('fullscreen-display-btn');
+            if (!button) return;
+            const active = !!(document.fullscreenElement || document.webkitFullscreenElement);
+            button.querySelector('i').className = active ? 'fa fa-compress' : 'fa fa-expand';
+            button.querySelector('span').textContent = active ? '退出全屏' : '全屏展示';
+        }
+        document.addEventListener('fullscreenchange', syncFullscreenButton);
+        document.addEventListener('webkitfullscreenchange', syncFullscreenButton);
+
+        // 关闭所有右侧侧边栏+遮罩
+        function closeAllSidebars() {
+            document.getElementById('overlay').classList.add('hidden');
+            const sidebarJob = document.getElementById('sidebar-job');
+            const sidebarAlert = document.getElementById('sidebar-alert');
+            if (sidebarJob) sidebarJob.classList.add('translate-x-full');
+            if (sidebarAlert) sidebarAlert.classList.add('translate-x-full');
+        }
+
+        // 打开作业详情侧边栏
+        function openJobDetail(name, location, time, owner) {
+            closeAllSidebars();
+            document.getElementById('overlay').classList.remove('hidden');
+            const sidebar = document.getElementById('sidebar-job');
+            sidebar.classList.remove('translate-x-full');
+            if (name) document.getElementById('job-name').textContent = name;
+            if (location) document.getElementById('job-location').textContent = location;
+            if (time) document.getElementById('job-time').textContent = time;
+            if (owner) document.getElementById('job-owner').textContent = owner;
+            // 简单根据作业名推断二级分类
+            if (name) {
+                const typeMap = { '采矿': '采矿开挖', '皮带运输': '设备巡检', '通风': '通风检测', '设备巡检': '设备巡检' };
+                const sub = document.getElementById('job-type-sub');
+                for (const k in typeMap) {
+                    if (name.indexOf(k) >= 0) { sub.textContent = typeMap[k]; break; }
+                }
+            }
+        }
+
+        // 打开预警消息列表侧边栏
+        function openAlertList() {
+            closeAllSidebars();
+            document.getElementById('overlay').classList.remove('hidden');
+            document.getElementById('sidebar-alert').classList.remove('translate-x-full');
+        }
+
+        // 打开自动轮播设置弹窗
+        function openCarouselModal() {
+            document.getElementById('carousel-modal').classList.remove('hidden');
+        }
+        function closeCarouselModal() {
+            document.getElementById('carousel-modal').classList.add('hidden');
+        }
+
+        // 忽略预警消息：二次确认后，仅关闭当前提醒，报警仍保留在实时报警中心，不改变核查或处理状态。
+        var pendingIgnoreAlert = null;
+        var ALERT_IGNORE_DURATION = 60 * 60 * 1000;
+
+        function getAlertType(item) {
+            if (!item) return '该预警';
+            var title = item.querySelector('.font-medium') || item.querySelector('.text-sm');
+            return title ? title.textContent.trim() : '该预警';
+        }
+
+        function getAlertCamera(item) {
+            if (!item) return '当前摄像头';
+            var camera = item.querySelector('.flex-1 > .text-textSecondary.text-xs');
+            return camera ? camera.textContent.trim() : '当前摄像头';
+        }
+
+        function getIgnoreAlertKey(type, camera) {
+            return 'ignoredAlert:' + encodeURIComponent(camera) + ':' + encodeURIComponent(type);
+        }
+
+        function requestIgnoreAlert(btn) {
+            var item = btn.closest('.alert-item');
+            if (!item) return;
+            pendingIgnoreAlert = { item: item, type: getAlertType(item), camera: getAlertCamera(item) };
+            document.getElementById('ignore-alert-camera').textContent = pendingIgnoreAlert.camera;
+            document.getElementById('ignore-alert-type').textContent = pendingIgnoreAlert.type;
+            document.getElementById('ignore-alert-modal').classList.remove('hidden');
+        }
+
+        function closeIgnoreAlertModal() {
+            document.getElementById('ignore-alert-modal').classList.add('hidden');
+            pendingIgnoreAlert = null;
+        }
+
+        function hideIgnoredAlert(type, camera) {
+            document.querySelectorAll('.alert-item').forEach(function (item) {
+                if (getAlertType(item) === type && getAlertCamera(item) === camera) item.style.display = 'none';
+            });
+        }
+
+        function confirmIgnoreAlert(){if(!pendingIgnoreAlert)return;const item=pendingIgnoreAlert.item;const key=window.videoReminderKey?.(item);if(key)sessionStorage.setItem('closedReminder:'+key,'1');if(item)item.style.display='none';closeIgnoreAlertModal()}
+
+        function applyIgnoredAlerts(){}
+
+        applyIgnoredAlerts();
+
+        // 跳转到AI预警实时和倒查标记页面
+        function gotoAlertReview() {
+            window.location.href = 'AI预警实时和倒查标记.html';
+        }
+    </script>
+    
+    <script>
+        (() => {
+            const d = document;
+            const grid = d.querySelector('.video-grid');
+            const gridSelect = d.getElementById('grid-select');
+            const autoPlay = d.getElementById('auto-sort-play');
+            const cards = [...grid.children].filter(item => item.querySelector('.video-img-wrap'));
+            const dangerScenes = [
+                ['assets/danger-scenes/high-altitude-maintenance.png', '高处设备检修监控画面'],
+                ['assets/danger-scenes/haul-truck-corridor.png', '矿区运输通道监控画面'],
+                ['assets/danger-scenes/high-altitude-maintenance.png', '高空作业监控画面'],
+                ['assets/danger-scenes/hot-work-welding.png', '工业动火作业监控画面'],
+                ['assets/danger-scenes/haul-truck-corridor.png', '采矿运输作业监控画面'],
+                ['assets/danger-scenes/crane-lifting.png', '大型吊装作业监控画面'],
+                ['assets/danger-scenes/hot-work-welding.png', '焊接作业监控画面'],
+                ['assets/danger-scenes/crane-lifting.png', '设备吊装监控画面'],
+                ['assets/danger-scenes/high-altitude-maintenance.png', '高处巡检作业监控画面'],
+                ['assets/danger-scenes/hot-work-welding.png', '支护检修作业监控画面'],
+                ['assets/danger-scenes/haul-truck-corridor.png', '运输巷作业监控画面'],
+                ['assets/danger-scenes/crane-lifting.png', '厂区起重作业监控画面']
+            ];
+            cards.forEach((card, index) => {
+                const image = card.querySelector('.video-img-wrap img');
+                const scene = dangerScenes[index % dangerScenes.length];
+                if (!image) return;
+                image.src = scene[0];
+                image.alt = scene[1];
+                image.loading = index < 3 ? 'eager' : 'lazy';
+            });
+            const cardName = card => card.querySelector('.px-3.py-2 .text-sm')?.textContent.trim() || '';
+            const cardMap = new Map(cards.filter(card => cardName(card)).map(card => [cardName(card), card]));
+            let manualSelection = [];
+            let activeSlot = 0;
+            let currentPage = 1;
+
+            const pager = d.createElement('div');
+            pager.id = 'videoPager';
+            pager.className = 'flex items-center justify-end gap-1 text-sm';
+            d.getElementById('video-grid-fullscreen').insertAdjacentElement('afterend', pager);
+
+            const capacity = () => Number(gridSelect.value) || 4;
+            const clearPlaceholders = () => grid.querySelectorAll('.manual-empty-slot').forEach(item => item.remove());
+            const setCardVisible = (card, visible) => card.classList.toggle('hidden', !visible);
+
+            function renderPager() {
+                const totalPages = Math.max(1, Math.ceil(cards.length / capacity()));
+                currentPage = Math.min(currentPage, totalPages);
+                let pageButtons = '';
+                for (let page = 1; page <= totalPages; page += 1) {
+                    pageButtons += `<button class="pager-number px-3 h-8 rounded ${page === currentPage ? 'bg-primary text-white' : 'text-textSecondary hover:bg-darkBorder'}" data-page="${page}">${page}</button>`;
+                }
+                pager.innerHTML = `<button id="pagerPrev" class="px-3 h-8 rounded border border-darkBorder disabled:opacity-40" aria-label="上一页"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m10 4-4 4 4 4"/></svg></button>${pageButtons}<button id="pagerNext" class="px-3 h-8 rounded border border-darkBorder disabled:opacity-40" aria-label="下一页"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 4 4 4-4 4"/></svg></button>`;
+                const previous = d.getElementById('pagerPrev');
+                const next = d.getElementById('pagerNext');
+                previous.disabled = currentPage === 1;
+                next.disabled = currentPage === totalPages;
+                previous.onclick = () => { currentPage -= 1; renderAutomatic(); };
+                next.onclick = () => { currentPage += 1; renderAutomatic(); };
+                pager.querySelectorAll('.pager-number').forEach(button => {
+                    button.onclick = () => { currentPage = Number(button.dataset.page); renderAutomatic(); };
+                });
+            }
+
+            function renderAutomatic() {
+                manualSelection = [];
+                clearPlaceholders();
+                d.querySelectorAll('.camera-tree-item').forEach(item => item.classList.remove('bg-primary/20', 'text-primary'));
+                const start = (currentPage - 1) * capacity();
+                cards.forEach((card, index) => {card.style.order='';card.classList.remove('vi-slot-active');setCardVisible(card, index >= start && index < start + capacity());});
+                renderPager();
+            }
+
+            function renderManual() {
+                clearPlaceholders();
+                cards.forEach(card => {const slot=manualSelection.indexOf(cardName(card));setCardVisible(card,slot>=0);card.style.order=slot>=0?slot:'';card.classList.toggle('vi-slot-active',slot===activeSlot);});
+                d.querySelectorAll('.camera-tree-item').forEach(item=>item.classList.toggle('text-primary',manualSelection.includes(item.querySelector(':scope > div > span')?.textContent.trim())));
+                const emptyCount = Math.max(0, capacity() - manualSelection.length);
+                for (let index = 0; index < emptyCount; index += 1) {
+                    const empty = d.createElement('div');
+                    empty.className = 'manual-empty-slot min-h-[300px] bg-darkPanel/50 border border-dashed border-darkBorder rounded-lg flex flex-col items-center justify-center text-textSecondary';
+                    empty.innerHTML = '<i class="fa fa-video-camera text-2xl mb-2 opacity-50"></i><span class="text-xs">空闲宫格</span>';
+                    empty.style.order=manualSelection.length+index;
+                    empty.addEventListener('click',()=>{activeSlot=manualSelection.length+index;});
+                    grid.appendChild(empty);
+                }
+                renderPager();
+            }
+
+            const cameraItems = [...d.querySelectorAll('#panel-area div')].filter(item => {
+                const icon = item.querySelector(':scope > div > i.fa-camera, :scope > div > i.fa-mobile, :scope > div > i.fa-hand-video-camera');
+                return icon && item.querySelector(':scope > div > span');
+            });
+            cameraItems.forEach(item => {
+                item.classList.add('camera-tree-item', 'cursor-pointer', 'rounded', 'px-1', 'transition-colors');
+                item.addEventListener('click', event => {
+                    if (event.target.closest('button')) return;
+                    const name = item.querySelector(':scope > div > span').textContent.trim();
+                    if(autoPlay.checked){
+                        manualSelection=[];
+                        activeSlot=0;
+                        currentPage=1;
+                    }
+                    autoPlay.checked=false;
+                    const existing=manualSelection.indexOf(name);
+                    if(existing>=0)activeSlot=existing;
+                    else if(capacity()===1){manualSelection=[name];activeSlot=0;}
+                    else if(manualSelection.length<capacity()){activeSlot=manualSelection.length;manualSelection.push(name);}
+                    else {activeSlot=Math.min(activeSlot,capacity()-1);manualSelection[activeSlot]=name;}
+                    renderManual();
+                });
+            });
+
+            autoPlay.addEventListener('change', () => {
+                if (autoPlay.checked) {
+                    currentPage = 1;
+                    renderAutomatic();
+                } else {
+                    manualSelection=[];
+                    activeSlot=0;
+                    currentPage=1;
+                    renderManual();
+                }
+            });
+            gridSelect.addEventListener('change', () => {
+                currentPage = 1;
+                if (autoPlay.checked) renderAutomatic();
+                else {
+                    manualSelection = manualSelection.slice(0, capacity());
+                    renderManual();
+                }
+            });
+            grid.addEventListener('click',event=>{const card=event.target.closest('.video-grid > div');if(!card||card.classList.contains('manual-empty-slot'))return;const visible=[...grid.children].filter(c=>!c.classList.contains('hidden')&&!c.classList.contains('manual-empty-slot')).sort((a,b)=>Number(a.style.order)-Number(b.style.order));activeSlot=visible.indexOf(card);visible.forEach(c=>c.classList.toggle('vi-slot-active',c===card));});
+            switchGrid(gridSelect.value);
+            renderAutomatic();
+            const initialCamera=new URLSearchParams(location.search).get('camera');
+            const linkedCameraIds=(new URLSearchParams(location.search).get('cameras')||'').split(',').filter(Boolean);
+            if(linkedCameraIds.length){const linkedCards=linkedCameraIds.map(id=>cards.find(card=>card.dataset.deviceId===id)).filter(Boolean);if(linkedCards.length){const count=linkedCards.length;const size=count<=1?'1':count<=4?'4':'9';gridSelect.value=size;switchGrid(Number(size));autoPlay.checked=false;activeSlot=0;currentPage=1;manualSelection=linkedCards.map(cardName);renderManual();}}
+            if(initialCamera){const card=cards.find(card=>card.dataset.deviceId===initialCamera);if(card){gridSelect.value='1';switchGrid(1);autoPlay.checked=false;activeSlot=0;currentPage=1;manualSelection=[cardName(card)];renderManual();}}
+
+
+
+        })();
+    </script>
+<script src="inspection.js?v=alerts2"></script><script>document.addEventListener('click',function(e){const a=e.target.closest('a,button,i');if(!a)return;const route=(a.getAttribute('href')||'')+' '+(a.getAttribute('onclick')||'');if(route.includes('多伦智能巡检平台.html')){e.preventDefault();e.stopImmediatePropagation();parent.postMessage({type:'duolun-video-nav',nav:'alarms'},'*')}},true);</script><div id="algorithm-management-root"></div><script src="../vue.global.prod.js"></script><script src="../naive-ui.prod.js"></script><script src="algorithm-management.js"></script></body>
+</html>

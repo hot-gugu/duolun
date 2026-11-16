@@ -1,0 +1,73 @@
+Use case: infographic-diagram.
+Create one polished, very legible simplified-Chinese enterprise FUNCTIONAL ARCHITECTURE DIAGRAM, not a dashboard screenshot. Landscape 16:10 composition, high resolution preferably 3840x2400. White and very pale blue background, primary #0879ff, dark text #24344d, section headings #172033, light blue-gray borders. Restrained blue gradients only on layer labels, no dark background, no purple neon, no 3D objects or decorative factory illustration. Crisp Chinese sans-serif typography. Large legible text, disciplined alignment and generous space. The architecture must dominate the image. Faithfully render all the quoted Chinese text, no fake text.
+
+Main title: "大唐多伦煤化工智能巡检项目"
+Subtitle: "功能架构图"
+Small top-right tag: "丙烯罐区"
+
+Organize EXACTLY FOUR broad horizontal layers from TOP to BOTTOM: 用户层, 报警核查中心, 数据层, 感知层. Each layer has a clear left-side label and a pale blue enclosing panel containing functional cards. The central alarm center is the tallest and most visually prominent. At far right place a slim separate cross-layer vertical panel for system integration. At bottom place a slim universal-support strip outside the four layers. Do not add any other architectural layers. The user layer has 3 cards; the data layer has 5 cards; the sensing layer has 5 cards.
+
+TOP LAYER left label "用户层", secondary caption "多端协同".
+Three equal cards:
+1 title "大屏 · 巡检一张图", content three lines "罐区地图 / 设备分布", "机器人轨迹 / 报警定位", "巡检态势 / 核心指标".
+2 title "Web 管理端", content three lines "配置管理 / 巡检调度", "远程操控 / 报警核查", "工单审核 / 统计报表".
+3 title "APP 端", small discreet pill "建议功能", content three lines "报警接收 / 工单签收", "现场核查 / 处理反馈", "照片上传 / 进度查询".
+
+SECOND LAYER left label "报警核查中心", secondary caption "业务应用层".
+Inside upper part put four aligned capability cards:
+"OGI 泄漏监测" with "气云与可见光预览" and "泄漏识别 / 趋势回溯";
+"机器人巡检" with "例行 / 特巡 / 指令任务" and "远程操控 / 任务跟踪";
+"AI 视频巡检" with "多画面轮巡 / 人工巡查" and "违规识别 / 异常检测";
+"统计分析" with "巡检 / 报警 / 设备故障" and "日报周报月报 / 报表导出".
+Below these cards display a horizontal connected business flow with six clear blocks and right-pointing arrows:
+"多源报警汇聚" → "分级分类研判" → "AI 初判" → "联动与人工核查" → "工单派发与处理" → "审核销项归档".
+Under the flow put two concise full-width text lines, clearly readable:
+"联动核查：机器人复核 + OGI 画面 + 实时与历史视频 + DCS / GDS 数据交叉验证"
+"处理闭环：派发 → 签收 → 现场核查 → 隐患处理 → 资料上传 → 审核销项 → 台账归档"
+This center is shared by all sources and all user clients.
+
+THIRD LAYER left label "数据层", secondary caption "接入与基础管理".
+Five equal cards, each with a title and three body lines:
+1 "多源数据接入"
+"OGI / 机器人 / 视频"
+"DCS / GDS"
+"协议适配 / 数据标准化"
+2 "监测对象与巡查点位"
+"区域 / 监测对象"
+"巡查点 / 检查项 / 监测点"
+"点位关联 / 数据映射"
+3 "设备资源管理"
+"OGI / 机器人 / 摄像头台账"
+"视频通道 / 设备参数"
+"在线状态 / 故障监测"
+4 "分级报警规则管理"
+"一级 / 二级 / 三级"
+"分类规则 / 分级处理策略"
+"核查联动 / 推送规则"
+5 "数据资产管理"
+"实时数据 / 历史趋势"
+"图片录像 / 报警事件"
+"巡检记录 / 工单台账"
+
+BOTTOM LAYER left label "感知层", secondary caption "现场设备与源系统".
+Five equal cards, simple thin-line icons are optional and must not dominate:
+"OGI 气云成像设备" with "气云图像 / 可见光 / 泄漏报警";
+"防爆轮式巡检机器人" with "可见光 / 热成像 / 气体检测";
+"现场视频监控" with "实时视频 / 图像采集";
+"DCS 系统" with "压力 / 液位 / 温度 / 过程报警";
+"GDS 系统" with "气体浓度 / 超限报警".
+
+RIGHT CROSS-LAYER SLIM PANEL title "系统集成", three vertically stacked blocks:
+"企业统一门户" with "单点登录 / 账号互通";
+"安全生产管控系统" with "数据与报警共享";
+"已建视频监控系统" with "视频汇聚 / 联动调阅".
+Connect this sidebar to main architecture with a short bidirectional line labeled "标准接口".
+
+Add three short UPWARD blue connectors BETWEEN adjacent layers, outside the cards, conveying sensing → data → center → clients. At far left outside the layers add one thin downward dashed blue arrow from center to sensing, labeled "核查任务 / 设备控制". Do NOT imply platform controls DCS process setpoints or GDS safety shutdown; the downward arrow ends at the robot/video-device side of sensing.
+
+At bottom outside the four layers, full-width thin strip:
+"统一支撑：组织与角色权限 ｜ 远程操作授权 ｜ 操作留痕 ｜ 单点登录 ｜ 容器化部署 ｜ 数据订阅与热备"
+Final tiny but legible footer:
+"依据：实施计划第 2 工作表《交付软件》及本次需求；APP 功能为建议设计。"
+This is a proposed functional architecture, not a claim of completed deployment. No other text or logos.
+

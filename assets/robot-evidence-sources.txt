@@ -1,0 +1,4 @@
+参考图片，非多伦机器人实际回传，不对应示例检测数值。
+测温热图：https://www.testequity.com/product/32674-1-FLK-TIS20-MAX-9HZ
+表计：https://compliancehd.com/pressure-equipment-directive-ped/
+可见光：见 propylene-tanks-source.txt

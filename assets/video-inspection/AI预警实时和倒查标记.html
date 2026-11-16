@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>“三维”无视频不作业智慧管控平台 - 实时监控视频抓拍</title>
+    
+    
+    
+    <style type="text/css">
+        @layer utilities {
+            .btn-type-normal { border:1px solid #d8e5f4;border-color:#d8e2ef;border-radius:8px;padding-left:16.0px;padding-right:16.0px;padding-top:12.0px;padding-bottom:12.0px;font-size:14px; }
+            .btn-type-active { border:1px solid #d8e5f4;border-color:#0879ff;background-color:#fff;color:#0879ff;border-radius:8px;padding-left:16.0px;padding-right:16.0px;padding-top:12.0px;padding-bottom:12.0px;font-size:14px; }
+            .form-scrollbar::-webkit-scrollbar {
+                width: 4px;
+            }
+            .form-scrollbar::-webkit-scrollbar-thumb {
+                background: #ccc;
+                border-radius: 2px;
+            }
+            .form-scrollbar::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            .tab-active {
+                border-color:#0879ff;color:#0879ff;
+            }
+        }
+        body{overflow:hidden;}
+        .mark-panel-dark { background:#08111f !important; }
+        .mark-panel-dark .mark-tabs { border-color:#24334d !important; }
+        .mark-panel-dark .mark-scroll { padding:0 18px 18px; }
+        .mark-panel-dark #tab1,
+        .mark-panel-dark #tab2 { color:#9aaaca; }
+        .mark-panel-dark #tab2.tab-active { color:#fff; }
+        .mark-list-item { display:grid;grid-template-columns:92px minmax(0,1fr);gap:14px;padding:20px 0;border-bottom:1px solid #263652; }
+        .mark-list-item img { width:92px;height:78px;border-radius:5px;object-fit:cover; }
+        .mark-list-info { min-width:0;font-size:13px;line-height:1.65;color:#fff; }
+        .mark-list-info .label { color:#7892bd; }
+        .mark-actions { display:flex;gap:12px;margin-top:8px; }
+        .mark-action { padding:2px 12px;border:1px solid #2677ff;border-radius:4px;color:#48a0ff;cursor:pointer; }
+        .mark-action.danger { border-color:#ef4444;color:#ef4444; }
+        .mark-pagination { display:flex;align-items:center;justify-content:center;gap:10px;padding:28px 0 8px;color:#fff; }
+        .mark-page { width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:5px;cursor:pointer; }
+        .mark-page.active { background:#2677ff; }
+        .person-chip { display:inline-flex;align-items:center;gap:6px;background:#eaf2ff;color:#2677ff;padding:7px 10px;border-radius:6px;font-size:13px; }
+        .person-add { border:1px dashed #2677ff;color:#2677ff;padding:6px 10px;border-radius:6px;font-size:13px;cursor:pointer;background:#fff; }
+    </style>
+<link rel="stylesheet" href="utilities.css?v=layout2"><link rel="stylesheet" href="inspection.css?v=layout2"><link rel="stylesheet" href="review.css?v=events1"></head>
+<body class="review-page font-inter bg-lightBg text-textMain h-screen flex">
+    <aside></aside>
+    <div class="flex-1 flex flex-col overflow-hidden">
+    <!-- 主内容区域 -->
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <!-- 顶部导航栏 -->
+        <header class="h-[60px] bg-white border-b border-borderGray flex items-center justify-between px-6 flex-shrink-0">
+            <div class="flex items-center gap-2">
+                <button type="button" aria-label="返回上一页" title="返回上一页" onclick="if(history.length>1){history.back()}else{location.href='index.html?mode=key-area'}" class="w-8 h-8 inline-flex items-center justify-center rounded-md text-textGray hover:text-primary hover:bg-blue-50" style="border:0;background-color:transparent;cursor:pointer">
+                    <i class="fa fa-arrow-left"></i>
+                </button>
+                <h1 class="text-lg font-medium">视频智能巡检</h1>
+            </div>
+            <div class="flex items-center gap-6">
+                <i class="fa fa-bell-o text-textGray relative cursor-pointer">
+                    <span class="absolute -top-1 -right-1 w-2 h-2 bg-dangerRed rounded-full"></span>
+                </i>
+                <div class="flex items-center gap-2 cursor-pointer">
+                    <span class="text-sm">张安全</span>
+                    <span class="text-xs text-textGray">监控中心-安全科</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- 页面主体布局：中间直播窗口，右侧表单 -->
+        <div class="flex-1 flex gap-4 p-4 overflow-hidden">
+            <!-- 中间实时直播窗口区域 -->
+            <div class="flex-1 bg-cardBg rounded-lg p-5 flex flex-col overflow-hidden">
+                <!-- 视频顶部标题信息栏 -->
+                <div class="mb-3 flex flex-wrap gap-x-5 gap-y-2 text-sm items-center">
+                    <span class="font-medium text-textMain">丙罐区A罐底部</span>
+                    
+                    
+                    
+                    
+                    <span class="text-textGray ml-auto">固定摄像头</span>
+                </div>
+                <!-- 直播播放器容器 -->
+                <div class="bg-slate-900 rounded flex-1 min-h-[360px] relative flex flex-col justify-between overflow-hidden group"><img class="review-live-placeholder" src="assets/danger-scenes/hot-work-welding.png" alt="工业现场直播占位图"><span class="review-placeholder-label">工业现场画面示例</span>
+                    <div class="flex-1 flex items-center justify-center">
+                        
+                    </div>
+                    <div class="p-4 bg-gradient-to-t from-black/80 to-transparent">
+                        <div class="flex items-center gap-3 text-white text-sm mb-3">
+                            <span>1.0x</span>
+                            <div class="flex-1 h-[4px] bg-slate-600 rounded relative cursor-pointer">
+                                <div class="absolute left-0 w-[40%] h-full bg-primary rounded"></div>
+                            </div>
+                            <span>实时直播 | 2026-07-29 13:30:22</span>
+                        </div>
+                        <div class="review-player-actions"><div class="flex items-center gap-5 text-white"><button type="button" class="text-sm"><i class="fa fa-play"></i> 暂停</button><button type="button" class="text-sm"><i class="fa fa-volume-up"></i> 音量</button><button type="button" class="text-sm" onclick="this.closest('.bg-slate-900').requestFullscreen?.()"><i class="fa fa-expand"></i> 全屏放大</button></div><button type="button" class="review-mark-btn" onclick="switchTab(1);document.querySelector('#manual-verification-root textarea')?.focus()"><i class="fa fa-hand-paper-o"></i> 标记事件</button></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧表单区域 -->
+            <div id="right-panel" class="w-[360px] bg-cardBg rounded-lg flex flex-col flex-shrink-0">
+                <!-- 顶部Tab切换 -->
+                <div class="mark-tabs flex border-b border-borderGray">
+                    <div id="tab1" onclick="switchTab(1)" class="flex-1 text-center py-3 text-sm cursor-pointer tab-active">事件核查</div>
+                </div>
+                <!-- 表单滚动容器 -->
+                <div class="mark-scroll p-5 flex-1 overflow-y-auto form-scrollbar">
+                    <!-- Tab1 事件核查表单 -->
+                    <div id="form-tab1"><div id="manual-verification-root"></div></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 详情侧边栏弹窗 -->
+    <div id="detail-overlay" onclick="closeDetail()" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:9998;display:none;"></div>
+    <div id="detail-sidebar" style="position:fixed;top:0;right:0;bottom:0;width:420px;background:#fff;z-index:9999;display:flex;flex-direction:column;transform:translateX(100%);transition:transform 0.3s ease;box-shadow:-4px 0 20px rgba(0,0,0,0.15);">
+        <div style="height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid #e5e7eb;flex-shrink:0;">
+            <h3 id="detail-title" style="font-size:18px;font-weight:600;">事件详情</h3>
+            <span onclick="closeDetail()" style="font-size:22px;cursor:pointer;color:#9ca3af;">&times;</span>
+        </div>
+        <div id="detail-body" style="flex:1;overflow-y:auto;padding:20px;"></div>
+        <div style="padding:16px 20px;border-top:1px solid #e5e7eb;flex-shrink:0;">
+            <button onclick="closeDetail()" style="width:100%;height:44px;border:1px solid #d8dbe3;border-radius:8px;background:#fff;font-size:16px;cursor:pointer;">关闭</button>
+        </div>
+    </div>
+
+    <!-- 编辑侧边栏弹窗 -->
+    <div id="edit-overlay" onclick="closeEdit()" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:9998;display:none;"></div>
+    <div id="edit-sidebar" style="position:fixed;top:0;right:0;bottom:0;width:520px;background:#fff;z-index:9999;display:flex;flex-direction:column;transform:translateX(100%);transition:transform 0.3s ease;box-shadow:-4px 0 20px rgba(0,0,0,0.15);">
+        <div style="height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid #e5e7eb;flex-shrink:0;">
+            <h3 id="edit-title" style="font-size:18px;font-weight:600;">编辑事件</h3>
+            <span onclick="closeEdit()" style="font-size:22px;cursor:pointer;color:#9ca3af;">&times;</span>
+        </div>
+        <div id="edit-body" style="flex:1;overflow-y:auto;padding:20px;"></div>
+        <div style="padding:16px 20px;border-top:1px solid #e5e7eb;flex-shrink:0;display:flex;gap:16px;">
+            <button onclick="closeEdit()" style="flex:1;height:44px;border-radius:8px;font-size:16px;cursor:pointer;border:1px solid #d8dbe3;background:#fff;">取消</button>
+            <button onclick="closeEdit()" style="flex:1;height:44px;border-radius:8px;font-size:16px;cursor:pointer;background:#2570f2;color:#fff;border:none;">确定提交</button>
+        </div>
+    </div>
+
+    <!-- XXXX楼栋-楼层（或者室外位置信息）弹窗 -->
+    <div id="gis-overlay" onclick="closeGisMap()" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:10000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);"></div>
+    <div id="gis-modal" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.9);opacity:0;z-index:10001;width:720px;background:#fff;border-radius:12px;display:flex;flex-direction:column;overflow:hidden;transition:all 0.25s ease;pointer-events:none;">
+        <div style="height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid #e5e7eb;flex-shrink:0;">
+            <h3 style="font-size:16px;font-weight:600;color:#1f2937;">XXXX楼栋-楼层（或者室外位置信息）</h3>
+            <span onclick="closeGisMap()" style="font-size:20px;cursor:pointer;color:#9ca3af;">&times;</span>
+        </div>
+        <div style="padding:16px 20px;flex:1;display:flex;flex-direction:column;">
+            <div style="font-size:13px;color:#6b7280;margin-bottom:8px;">点击地图选择标注点位，选定后点击"保存标注"。</div>
+            <div id="gis-map-container" onclick="placeGisMark(event)" style="position:relative;width:100%;height:360px;border-radius:8px;overflow:hidden;cursor:crosshair;background:linear-gradient(135deg,#1a2a3a 0%,#2a3f5f 50%,#1a2a3a 100%);">
+                <!-- 2.5D GIS底图模拟 -->
+                <div style="position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(255,255,255,0.04) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(255,255,255,0.04) 40px);"></div>
+                <!-- 地形模拟 -->
+                <div style="position:absolute;left:10%;top:15%;width:30%;height:40%;background:radial-gradient(ellipse at center,rgba(34,197,94,0.12),transparent 70%);"></div>
+                <div style="position:absolute;right:5%;top:50%;width:35%;height:35%;background:radial-gradient(ellipse at center,rgba(59,130,246,0.1),transparent 70%);"></div>
+                <div style="position:absolute;left:45%;top:55%;width:20%;height:25%;background:radial-gradient(ellipse at center,rgba(239,68,68,0.08),transparent 70%);"></div>
+                <!-- 道路模拟 -->
+                <div style="position:absolute;left:0;top:45%;width:100%;height:2px;background:rgba(255,255,255,0.1);transform:rotate(-5deg);"></div>
+                <div style="position:absolute;left:30%;top:0;width:2px;height:100%;background:rgba(255,255,255,0.1);transform:rotate(8deg);"></div>
+                <!-- 建筑模拟 -->
+                <div style="position:absolute;left:15%;top:20%;width:40px;height:30px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:2px;transform:perspective(100px) rotateX(25deg);"></div>
+                <div style="position:absolute;left:60%;top:30%;width:50px;height:35px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:2px;transform:perspective(100px) rotateX(25deg);"></div>
+                <div style="position:absolute;left:25%;top:60%;width:45px;height:32px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:2px;transform:perspective(100px) rotateX(25deg);"></div>
+                <div style="position:absolute;left:70%;top:65%;width:38px;height:28px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:2px;transform:perspective(100px) rotateX(25deg);"></div>
+                <!-- 标签 -->
+                <div style="position:absolute;left:12px;top:12px;font-size:11px;color:rgba(255,255,255,0.4);">矿区GIS底图 · 2.5D</div>
+                <div style="position:absolute;right:12px;bottom:12px;font-size:11px;color:rgba(255,255,255,0.3);">比例尺 1:500</div>
+                <!-- 标注点容器 -->
+                <div id="gis-mark-point" style="display:none;position:absolute;transform:translate(-50%,-100%);z-index:10;">
+                    <div style="width:24px;height:24px;background:#ef4444;border:3px solid #fff;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 8px rgba(0,0,0,0.4);"></div>
+                    <div style="position:absolute;top:-22px;left:50%;transform:translateX(-50%);white-space:nowrap;background:rgba(0,0,0,0.7);color:#fff;font-size:11px;padding:2px 8px;border-radius:4px;">标注点位</div>
+                </div>
+            </div>
+            <div id="gis-coord" style="font-size:12px;color:#6b7280;margin-top:8px;">坐标：未标注</div>
+        </div>
+        <div style="padding:12px 20px;border-top:1px solid #e5e7eb;flex-shrink:0;display:flex;gap:12px;justify-content:flex-end;">
+            <button onclick="closeGisMap()" style="padding:8px 20px;border:1px solid #d8dbe3;border-radius:6px;background:#fff;font-size:14px;cursor:pointer;color:#6b7280;">取消</button>
+            <button onclick="saveGisMark()" style="padding:8px 20px;border:none;border-radius:6px;background:#2570f2;color:#fff;font-size:14px;cursor:pointer;">保存标注</button>
+        </div>
+    </div>
+
+    <script>
+        if (localStorage.getItem('annotationReviewCompletedRealtime') === 'true') {
+            document.querySelectorAll('.realtime-annotation-status').forEach(function (el) {
+                el.textContent = '已标注'; el.classList.remove('bg-warningYellow'); el.classList.add('bg-successGreen');
+            });
+            var realtimeEntry = document.getElementById('realtimeAnnotationEntry');
+            if (realtimeEntry) realtimeEntry.innerHTML = '<i class="fa fa-check-circle"></i> 人工标注已完成（3 张）';
+        }
+        function captureSnapshot(button) {
+            const original = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = '<i class="fa fa-check"></i> 截图成功';
+            button.classList.add('border-successGreen', 'text-successGreen');
+            setTimeout(function() {
+                button.innerHTML = original;
+                button.disabled = false;
+                button.classList.remove('border-successGreen', 'text-successGreen');
+            }, 1600);
+        }
+
+        // 标记事件始终定位到事件核查表单。
+        function switchTab() {
+            document.getElementById("form-tab1").classList.remove("hidden");
+        }
+
+        function removePerson(icon) {
+            icon.closest('.person-chip').remove();
+        }
+
+        function addPerson() {
+            const list = document.getElementById('person-list');
+            if (list.querySelector('[data-added-person]')) return;
+            const chip = document.createElement('span');
+            chip.className = 'person-chip';
+            chip.dataset.addedPerson = 'true';
+            chip.innerHTML = '王安全员(WX001386) <i class="fa fa-times cursor-pointer text-xs" onclick="removePerson(this)"></i>';
+            list.insertBefore(chip, document.getElementById('add-person-button'));
+        }
+
+        function deleteMark(button) {
+            button.closest('.mark-list-item').remove();
+        }
+
+        // ===== 数据源 =====
+        var violationData = {
+            1: { type: 'wz', photos: ['1011', '1012'], content: '未佩戴安全帽', time: '2026-08-05 14:32:16', unit: '采矿一厂', level: 'B类事件', person: '陶炳之(WX000864)、魏伟(WX001258)', location: '中碎作业区', rule: '根据现场画面核实事件情况并记录核查依据。', reviewStatus: '已复核', reviewResult: '确认事件' },
+            2: { type: 'wz', photos: ['1041'], content: '未穿反光衣', time: '2026-08-05 14:28:42', unit: '运输车间', level: 'C类事件', person: '陶炳之(WX000864)', location: '井下运输大巷', rule: '根据现场画面核实事件情况并记录核查依据。', reviewStatus: '待复核', reviewResult: '' },
+            3: { type: 'yh', photos: ['1042'], content: '跑冒滴漏', time: '2026-08-05 14:24:07', unit: '采矿二厂', level: '一般事件', person: '王安全员', location: '东帮658工作面', rule: '根据现场画面核实事件情况并记录核查依据。', reviewStatus: '待核实', reviewResult: '' }
+        };
+
+        // ===== 详情侧边栏 =====
+        const eventNames=["未佩戴安全帽", "未穿反光衣", "人员吸烟", "非法闯入", "围栏翻越", "杂物堆积", "烟雾报警", "火焰报警", "跑冒滴漏", "气体泄漏"];
+        function eventFields(d){return [['事件名称',d.content],['核查说明/依据',d.rule||'—'],['涉及人员',d.person||'—'],['发现时间',d.time],['监控位置',d.location],['复核状态',d.reviewStatus],['复核结果',d.reviewResult||'—']]}
+        const eventEscape=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        function openDetail(type,id){const d=violationData[id];if(!d)return;document.getElementById('detail-title').textContent='事件详情';document.getElementById('detail-body').innerHTML='<img src="sample-no-helmet.jpg" alt="事件现场照片" style="width:100%;height:180px;object-fit:cover;border-radius:8px;margin-bottom:16px">'+eventFields(d).map(([k,v])=>'<div style="margin-bottom:16px"><div style="font-size:12px;color:#8190a5;margin-bottom:6px">'+k+'</div><div style="font-size:14px;color:#24344d">'+eventEscape(v)+'</div></div>').join('');document.getElementById('detail-overlay').style.display='block';document.getElementById('detail-sidebar').style.transform='translateX(0)'}
+        function closeDetail() {
+            document.getElementById('detail-overlay').style.display = 'none';
+            document.getElementById('detail-sidebar').style.transform = 'translateX(100%)';
+        }
+
+        // ===== 编辑侧边栏 =====
+        function openEdit(type,id){const d=violationData[id];if(!d)return;document.getElementById('edit-title').textContent='编辑事件';document.getElementById('edit-body').innerHTML='<label>事件名称</label><select id="edit-event-name" style="width:100%;height:36px;border:1px solid #d8e2ef;border-radius:8px;margin:8px 0 16px">'+eventNames.map(n=>'<option '+(n===d.content?'selected':'')+'>'+n+'</option>').join('')+'</select><label>核查说明/依据</label><textarea id="edit-event-reason" style="width:100%;height:100px;border:1px solid #d8e2ef;border-radius:8px;margin:8px 0 16px">'+eventEscape(d.rule)+'</textarea><button onclick="saveEventEdit('+id+')" style="height:36px;padding:0 16px;background:#0879ff;color:white;border-radius:8px">保存</button>';document.getElementById('edit-overlay').style.display='block';document.getElementById('edit-sidebar').style.transform='translateX(0)'}
+        function saveEventEdit(id){violationData[id].content=document.getElementById('edit-event-name').value;violationData[id].rule=document.getElementById('edit-event-reason').value;document.querySelectorAll('#form-tab2 .mark-list-item').forEach((row,i)=>{const d=violationData[i+1];if(d){const name=row.querySelector('.event-record-name');if(name)name.textContent=d.content}});closeEdit()}
+        function closeEdit() {
+            document.getElementById('edit-overlay').style.display = 'none';
+            document.getElementById('edit-sidebar').style.transform = 'translateX(100%)';
+        }
+
+        // ===== XXXX楼栋-楼层（或者室外位置信息） =====
+        var gisContext = { inputId: null, btnId: null, markX: 0, markY: 0, hasMark: false };
+        // 记录每个场景的标注状态
+        var gisMarks = {};
+
+        function openGisMap(inputId, btnId) {
+            gisContext.inputId = inputId;
+            gisContext.btnId = btnId;
+            gisContext.hasMark = false;
+
+            // 恢复已有标注
+            var existing = gisMarks[inputId];
+            var markPoint = document.getElementById('gis-mark-point');
+            var coord = document.getElementById('gis-coord');
+            if (existing && existing.hasMark) {
+                markPoint.style.display = 'block';
+                markPoint.style.left = existing.x + '%';
+                markPoint.style.top = existing.y + '%';
+                gisContext.markX = existing.x;
+                gisContext.markY = existing.y;
+                gisContext.hasMark = true;
+                coord.textContent = '坐标：' + existing.x.toFixed(1) + '%, ' + existing.y.toFixed(1) + '% (已标注)';
+            } else {
+                markPoint.style.display = 'none';
+                coord.textContent = '坐标：未标注';
+            }
+
+            document.getElementById('gis-overlay').style.display = 'flex';
+            var modal = document.getElementById('gis-modal');
+            modal.style.opacity = '1';
+            modal.style.transform = 'translate(-50%,-50%) scale(1)';
+            modal.style.pointerEvents = 'auto';
+        }
+
+        function placeGisMark(e) {
+            var container = document.getElementById('gis-map-container');
+            var rect = container.getBoundingClientRect();
+            var x = ((e.clientX - rect.left) / rect.width) * 100;
+            var y = ((e.clientY - rect.top) / rect.height) * 100;
+
+            var markPoint = document.getElementById('gis-mark-point');
+            markPoint.style.display = 'block';
+            markPoint.style.left = x + '%';
+            markPoint.style.top = y + '%';
+
+            gisContext.markX = x;
+            gisContext.markY = y;
+            gisContext.hasMark = true;
+
+            document.getElementById('gis-coord').textContent = '坐标：' + x.toFixed(1) + '%, ' + y.toFixed(1) + '%';
+        }
+
+        function saveGisMark() {
+            if (!gisContext.hasMark) {
+                alert('请在地图上点击选择标注点位');
+                return;
+            }
+            // 保存标注状态
+            gisMarks[gisContext.inputId] = { hasMark: true, x: gisContext.markX, y: gisContext.markY };
+            // 更新按钮文字
+            var btn = document.getElementById(gisContext.btnId);
+            if (btn) {
+                btn.textContent = '查看位置';
+                btn.style.color = '#10b981';
+            }
+            closeGisMap();
+        }
+
+        function closeGisMap() {
+            document.getElementById('gis-overlay').style.display = 'none';
+            var modal = document.getElementById('gis-modal');
+            modal.style.opacity = '0';
+            modal.style.transform = 'translate(-50%,-50%) scale(0.9)';
+            modal.style.pointerEvents = 'none';
+        }
+
+    </script>
+    </div>
+    
+<script>document.addEventListener('click',function(e){const a=e.target.closest('a,button,i');if(!a)return;const route=(a.getAttribute('href')||'')+' '+(a.getAttribute('onclick')||'');if(route.includes('多伦智能巡检平台.html')){e.preventDefault();e.stopImmediatePropagation();parent.postMessage({type:'duolun-video-nav',nav:'alarms'},'*')}},true);</script><script src="../vue.global.prod.js"></script><script src="../naive-ui.prod.js"></script><link rel="stylesheet" href="../shared-person-field.css"><script src="../shared-person-field.js"></script><script src="manual-verification.js"></script></body>
+</html>

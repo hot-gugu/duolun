@@ -1,0 +1,5065 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>监管重点部位配置 - 合肥市工贸安全监管平台</title>
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%3E%3Cpath%20fill='%232b6fe0'%20d='M12%202%204%205v6c0%205%203.5%209%208%2011%204.5-2%208-6%208-11V5l-8-3Z'/%3E%3C/svg%3E">
+
+<style>
+
+  :root {
+
+    --topbar-1: #123a73;
+
+    --topbar-2: #1a4b94;
+
+    --sidebar-1: #0f2b52;
+
+    --sidebar-2: #0a1f3f;
+
+    --accent: #2b6fe0;
+
+    --accent-soft: #57a0ff;
+
+    --page-bg: #eef2f8;
+
+    --card-bg: #ffffff;
+
+    --text-main: #1d2b3f;
+
+    --text-sub: #5b6b84;
+
+    --text-faint: #98a6bd;
+
+    --border: #e3e9f2;
+
+    --sidebar-w: 236px;
+
+    --topbar-h: 64px;
+
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body { height: 100%; }
+
+  body {
+
+    font-family: "PingFang SC", "Microsoft YaHei", "微软雅黑", "Noto Sans SC", "Helvetica Neue", Arial, sans-serif;
+
+    background: var(--page-bg);
+
+    color: var(--text-main);
+
+    -webkit-font-smoothing: antialiased;
+
+  }
+
+  svg { display: block; }
+
+
+
+  /* ===== 顶栏 ===== */
+
+  .topbar {
+
+    position: fixed; top: 0; left: 0; right: 0; height: var(--topbar-h); z-index: 30;
+
+    display: flex; align-items: center; justify-content: space-between;
+
+    padding: 0 22px;
+
+    background: linear-gradient(90deg, var(--topbar-1), var(--topbar-2));
+
+    box-shadow: 0 2px 10px rgba(8, 25, 60, .28);
+
+  }
+
+  .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+
+  .brand-logo {
+
+    width: 38px; height: 38px; flex-shrink: 0; border-radius: 9px;
+
+    background: rgba(255, 255, 255, .14);
+
+    display: grid; place-items: center; color: #fff;
+
+  }
+
+  .brand-text { min-width: 0; }
+
+  .brand-name {
+
+    font-size: 19px; font-weight: 700; letter-spacing: 1px; color: #fff;
+
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+
+  }
+
+  .brand-en {
+
+    margin-top: 2px; font-size: 10px; letter-spacing: 1.8px;
+
+    color: rgba(255, 255, 255, .62); text-transform: uppercase;
+
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+
+  }
+
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+
+  .screen-btn {
+
+    height: 34px; padding: 0 18px; border: none; border-radius: 17px;
+
+    background: linear-gradient(135deg, #3f8bff, #2764d6);
+
+    color: #fff; font-size: 13px; cursor: pointer;
+
+    display: inline-flex; align-items: center; gap: 6px;
+
+    box-shadow: 0 2px 8px rgba(20, 80, 180, .35);
+
+    transition: filter .18s ease, transform .18s ease;
+
+  }
+
+  .screen-btn:hover { filter: brightness(1.1); }
+
+  .screen-btn:active { transform: scale(.97); }
+
+  .menu-toggle {
+
+    display: none; width: 38px; height: 34px; border: 1px solid rgba(255, 255, 255, .35);
+
+    border-radius: 8px; background: transparent; color: #fff; cursor: pointer;
+
+    align-items: center; justify-content: center;
+
+  }
+
+  .menu-toggle:hover { background: rgba(255, 255, 255, .1); }
+
+
+
+  /* ===== 布局 ===== */
+
+  .layout { padding-top: var(--topbar-h); min-height: 100vh; }
+
+
+
+  /* ===== 侧边栏 ===== */
+
+  .sidebar {
+
+    position: fixed; top: var(--topbar-h); left: 0; bottom: 0; width: var(--sidebar-w); z-index: 20;
+
+    background: linear-gradient(180deg, var(--sidebar-1), var(--sidebar-2));
+
+    padding: 14px 10px 24px; overflow-y: auto;
+
+    transition: transform .24s ease;
+
+  }
+
+  .sidebar::-webkit-scrollbar { width: 5px; }
+
+  .sidebar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, .18); border-radius: 3px; }
+
+  .nav-group-title, .nav-item {
+
+    display: flex; align-items: center; gap: 10px;
+
+    padding: 10px 12px; margin-bottom: 2px;
+
+    font-size: 14px; color: rgba(255, 255, 255, .8);
+
+    border-radius: 8px; cursor: pointer; user-select: none;
+
+    transition: background .16s ease, color .16s ease;
+
+  }
+
+  .nav-group-title:hover, .nav-item:hover { background: rgba(255, 255, 255, .07); color: #fff; }
+
+  .nav-group-title .caret {
+
+    margin-left: auto; color: rgba(255, 255, 255, .55);
+
+    transition: transform .2s ease;
+
+  }
+
+  .nav-group.open > .nav-group-title .caret { transform: rotate(90deg); }
+
+  .nav-children { display: none; padding: 2px 0 4px; }
+
+  .nav-group.open > .nav-children { display: block; }
+
+  .nav-children .nav-item { padding-left: 22px; font-size: 13px; }
+
+  .nav-item .ico { color: rgba(255, 255, 255, .72); flex-shrink: 0; }
+
+  .nav-item.active {
+
+    background: linear-gradient(90deg, rgba(63, 139, 255, .34), rgba(63, 139, 255, .12));
+
+    color: #fff; font-weight: 600;
+
+    box-shadow: inset 3px 0 0 var(--accent-soft);
+
+  }
+
+  .nav-item.active .ico { color: #fff; }
+
+  .sidebar-mask {
+
+    display: none; position: fixed; inset: var(--topbar-h) 0 0 0; z-index: 15;
+
+    background: rgba(10, 22, 45, .45);
+
+  }
+
+
+
+  /* ===== 主内容 ===== */
+
+  .main {
+
+    margin-left: var(--sidebar-w);
+
+    padding: 22px 26px 36px;
+
+    min-height: calc(100vh - var(--topbar-h));
+
+    display: flex; flex-direction: column;
+
+  }
+
+  .breadcrumb {
+
+    display: flex; align-items: center; gap: 8px;
+
+    font-size: 13px; color: var(--text-sub);
+
+    margin: 0 0 18px;
+
+  }
+
+  .breadcrumb a { color: var(--accent); cursor: pointer; text-decoration: none; }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+
+  .breadcrumb .sep { color: var(--text-faint); }
+
+  .breadcrumb .cur { color: var(--text-main); }
+
+
+
+  .empty-card {
+
+    flex: 1; min-height: 360px;
+
+    background: var(--card-bg);
+
+    border: 1px solid var(--border);
+
+    border-radius: 12px;
+
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+
+    gap: 14px; padding: 40px 20px;
+
+  }
+
+  .empty-icon {
+
+    width: 88px; height: 88px; border-radius: 50%;
+
+    background: #eaf1fc; color: #4a86e8;
+
+    display: grid; place-items: center;
+
+  }
+
+  .empty-title { font-size: 18px; font-weight: 600; color: #31415c; }
+
+  .empty-hint { font-size: 13px; color: var(--text-faint); }
+
+
+
+  /* ===== 列表页：工具栏与表格 ===== */
+
+  .list-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+
+  .list-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+
+  .list-count { font-size: 13px; color: var(--text-sub); }
+
+  .list-count b { color: var(--text-main); font-weight: 600; }
+
+  .btn { height: 36px; padding: 0 18px; border: none; border-radius: 8px; font-size: 13.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: filter .16s ease, background .16s ease; }
+
+  .btn-primary { background: linear-gradient(135deg, #3f8bff, #2764d6); color: #fff; box-shadow: 0 2px 8px rgba(20, 80, 180, .3); }
+
+  .btn-primary:hover { filter: brightness(1.08); }
+
+  .btn-ghost { background: #eef2f8; color: var(--text-main); }
+
+  .btn-ghost:hover { background: #e3e9f2; }
+
+  .btn-danger { background: #e03131; color: #fff; }
+
+  .btn-danger:hover { filter: brightness(1.08); }
+
+  .table-wrap { overflow-x: auto; }
+
+  table.list { width: 100%; table-layout: fixed; border-collapse: collapse; min-width: 640px; }
+
+  table.list th, table.list td { padding: 12px 16px; text-align: left; }
+
+  table.list thead th { background: #f4f7fb; font-size: 13px; color: var(--text-sub); font-weight: 600; border-bottom: 1px solid var(--border); white-space: nowrap; }
+
+  table.list tbody td { font-size: 13.5px; color: var(--text-main); border-bottom: 1px solid #eef2f7; }
+
+  table.list tbody tr:last-child td { border-bottom: none; }
+
+  table.list tbody tr:hover td { background: #f7faff; }
+
+  .empty-row td { text-align: center; padding: 64px 20px; color: var(--text-faint); font-size: 13px; }
+
+  .tag { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12.5px; font-weight: 500; white-space: nowrap; }
+
+  .tag-major { background: #fde8e8; color: #c92a2a; }
+
+  .tag-large { background: #ffedd5; color: #dd6b20; }
+
+  .tag-mid { background: #fff3bf; color: #9a6700; }
+
+  .tag-low { background: #d3f9d8; color: #2b8a3e; }
+
+  .op-btn { border: none; background: none; padding: 0; font-size: 13px; cursor: pointer; margin-right: 14px; }
+
+  .op-btn:hover { text-decoration: underline; }
+
+  .op-edit { color: var(--accent); }
+
+  .op-del { color: #e03131; }
+
+  .tag-blue { background: #d0ebff; color: #1971c2; }
+
+  .tag-neutral { background: #eef2f8; color: #4a5a75; }
+
+  .alarm-cell .tag { margin: 2px 6px 2px 0; }
+
+  .alarm-cell .tag-dim { background: transparent; color: var(--text-faint); }
+
+
+
+  /* ===== Tab 切换 ===== */
+
+  .view-hidden { display: none; }
+
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 14px; }
+
+  .tab-item { border: none; background: none; padding: 10px 18px; font-size: 14px; color: var(--text-sub); cursor: pointer; position: relative; transition: color .16s ease; }
+
+  .tab-item:hover { color: var(--text-main); }
+
+  .tab-item.active { color: var(--accent); font-weight: 600; }
+
+  .tab-item.active::after { content: ''; position: absolute; left: 12px; right: 12px; bottom: -1px; height: 2px; background: var(--accent); border-radius: 1px; }
+
+  .panel-hidden { display: none; }
+
+
+
+  /* ===== 模态框 ===== */
+
+  .modal-mask { display: none; position: fixed; inset: 0; z-index: 70; background: rgba(15, 30, 60, .5); align-items: center; justify-content: center; padding: 20px; opacity: 0; transition: opacity .24s ease; }
+
+  .modal-mask.show { display: flex; opacity: 1; }
+
+  .modal { width: 100%; max-width: 480px; background: #fff; border-radius: 12px; box-shadow: 0 18px 50px rgba(8, 25, 60, .28); }
+
+  .modal-sm { max-width: 380px; }
+
+  /* 右侧抽屉（新增/编辑表单） */
+
+  .drawer-mask { justify-content: flex-end; align-items: stretch; padding: 0; }
+
+  .drawer { max-width: 480px; width: 100%; height: 100%; border-radius: 0; display: flex; flex-direction: column; transform: translateX(100%); transition: transform .28s ease; box-shadow: -14px 0 40px rgba(8, 25, 60, .28); }
+
+  .drawer-mask.show .drawer { transform: translateX(0); }
+
+  .drawer .modal-body { flex: 1; overflow-y: auto; }
+
+  .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+
+  .modal-title { font-size: 16px; font-weight: 600; color: var(--text-main); }
+
+  .modal-close { border: none; background: none; cursor: pointer; color: var(--text-faint); display: grid; place-items: center; padding: 4px; }
+
+  .modal-close:hover { color: var(--text-main); }
+
+  .modal-body { padding: 20px; }
+
+  .form-item { margin-bottom: 16px; }
+
+  .form-item:last-child { margin-bottom: 0; }
+
+  .form-item label { display: block; font-size: 13px; color: var(--text-sub); margin-bottom: 6px; }
+
+  .form-item label i { font-style: normal; color: #e03131; margin-right: 2px; }
+
+  .form-input, .form-select { width: 100%; height: 38px; border: 1px solid #d4dce8; border-radius: 8px; padding: 0 12px; font-size: 13.5px; color: var(--text-main); background: #fff; outline: none; transition: border-color .15s ease; }
+
+  .form-input:focus, .form-select:focus { border-color: var(--accent); }
+
+  .form-err { display: none; font-size: 12px; color: #e03131; margin-top: 5px; }
+
+  .form-err.show { display: block; }
+
+  .form-help { margin-top: 6px; font-size: 12px; color: var(--text-faint); }
+
+  /* ===== 通知模板配置 ===== */
+
+  .notice-toolbar-copy { display: flex; align-items: baseline; gap: 8px; color: var(--text-sub); font-size: 13px; }
+
+  .notice-toolbar-copy b { color: var(--accent); font-size: 16px; }
+
+  .notice-table { table-layout: fixed; }
+
+  .notice-content-cell { line-height: 1.65; color: var(--text-main); }
+
+  .notice-content-cell span { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+
+  .notice-tag-list { display: flex; flex-wrap: wrap; gap: 5px; }
+
+  .notice-mini-tag { display: inline-flex; align-items: center; min-height: 24px; padding: 2px 8px; border-radius: 4px; background: #edf4ff; color: #2b6fe0; font-size: 12px; line-height: 1.4; }
+
+  .notice-mini-tag.channel { background: #eef8f4; color: #168361; }
+
+  .notice-mini-tag.sms { background: #fff5e8; color: #c57216; }
+
+  .notice-level { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+
+  .notice-level::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+  .notice-level.urgent { color: #d9485f; }
+
+  .notice-level.normal { color: #d68b1f; }
+
+  .notice-level.tip { color: #2f7ee6; }
+
+  .notice-drawer { max-width: 620px; }
+
+  .notice-textarea { width: 100%; min-height: 148px; resize: vertical; border: 1px solid #d4dce8; border-radius: 8px; padding: 11px 12px; color: var(--text-main); background: #fff; font: inherit; line-height: 1.7; outline: none; }
+
+  .notice-textarea:focus { border-color: var(--accent); }
+
+  .notice-field-meta { display: flex; justify-content: flex-end; margin-top: 5px; color: var(--text-faint); font-size: 12px; }
+
+  .notice-vars { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin-top: 10px; }
+
+  .notice-vars span { color: var(--text-faint); font-size: 12px; }
+
+  .notice-vars button { height: 28px; padding: 0 10px; border: 1px solid #b9d4f4; border-radius: 5px; background: #f5f9ff; color: #2b6fe0; font-size: 12px; cursor: pointer; }
+
+  .notice-vars button:hover { border-color: var(--accent); background: #eaf3ff; }
+
+  .notice-role-options { max-height: 210px; overflow-y: auto; border: 1px solid #d4dce8; border-radius: 8px; background: #fff; }
+
+  .notice-role-group + .notice-role-group { border-top: 1px solid #e6edf5; }
+
+  .notice-role-group strong { display: block; padding: 8px 11px 5px; color: var(--text-faint); background: #f8fbff; font-size: 12px; font-weight: 500; }
+
+  .notice-role-choice { display: flex!important; align-items: center; gap: 9px; min-height: 38px; margin: 0!important; padding: 6px 11px; color: var(--text-main)!important; cursor: pointer; }
+
+  .notice-role-choice:hover { background: #f2f7fd; }
+
+  .notice-role-choice input, .notice-method-card input { accent-color: var(--accent); }
+
+  .notice-role-empty { padding: 22px 14px; color: var(--text-faint); text-align: center; font-size: 12px; }
+
+  .notice-methods { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+
+  .notice-method-card { display: flex!important; align-items: center; gap: 10px; min-height: 48px; margin: 0!important; padding: 0 13px; border: 1px solid #d4dce8; border-radius: 8px; color: var(--text-main)!important; background: #fff; cursor: pointer; }
+
+  .notice-method-card:has(input:checked) { border-color: #82b6f5; background: #f2f7ff; }
+
+  .notice-selected-count { margin-top: 6px; color: var(--text-faint); font-size: 12px; }
+
+  .notice-drawer .modal-foot { background: #fff; }
+
+  .notice-vars button:focus-visible, .notice-textarea:focus-visible, .notice-role-choice:focus-within, .notice-method-card:focus-within { outline: 2px solid #76b3f5; outline-offset: 2px; }
+
+  .del-tip { font-size: 13.5px; color: var(--text-main); line-height: 1.7; }
+
+  .modal-foot { display: flex; justify-content: flex-end; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--border); }
+
+  @media (max-width: 560px) {
+
+    .modal { max-width: 100%; }
+
+    .btn-primary { min-height: 44px; }
+
+    .list-toolbar { padding: 12px 14px; }
+
+  }
+
+
+
+  /* ===== Toast ===== */
+
+  .toast {
+
+    position: fixed; left: 50%; bottom: 42px; z-index: 60;
+
+    transform: translate(-50%, 18px);
+
+    background: rgba(15, 30, 60, .94); color: #fff;
+
+    padding: 10px 20px; border-radius: 8px; font-size: 13px;
+
+    opacity: 0; pointer-events: none;
+
+    transition: opacity .22s ease, transform .22s ease;
+
+    box-shadow: 0 6px 20px rgba(8, 25, 60, .3);
+
+    max-width: 80vw;
+
+  }
+
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+
+
+  /* ===== 处置流程配置卡片 ===== */
+
+  .flow-hint { margin-bottom: 12px; font-size: 13px; color: var(--text-sub); }
+
+  .flow-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px 20px; margin-bottom: 16px; }
+
+  .flow-card:last-child { margin-bottom: 0; }
+
+  .flow-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+
+  .flow-head-left { display: flex; align-items: center; gap: 10px; }
+
+  .flow-name { font-size: 15.5px; font-weight: 600; color: var(--text-main); }
+
+  .flow-desc { margin-top: 8px; font-size: 13px; color: var(--text-sub); }
+
+  .flow-meta { display: flex; flex-wrap: wrap; gap: 18px; margin: 12px 0 14px; padding: 10px 14px; background: #f7faff; border-radius: 8px; font-size: 13px; color: var(--text-sub); }
+
+  .flow-meta b { color: var(--accent); font-weight: 600; }
+
+  .flow-table { min-width: 560px; }
+
+  .flow-table tbody tr:hover td { background: transparent; }
+
+  .flow-node b { color: var(--accent); font-size: 15px; }
+
+  .flow-level-tag { display: inline-block; padding: 6px 12px; background: #eef2f8; border-radius: 8px; font-size: 13.5px; color: var(--text-main); font-weight: 600; }
+
+  .form-row2 { display: flex; gap: 12px; }
+
+  .form-row2 > div { flex: 1; min-width: 0; }
+
+  .chk-inline { display: flex; gap: 18px; }
+
+  .chk-item { display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; color: var(--text-main); cursor: pointer; user-select: none; }
+
+  .chk-item input { width: 15px; height: 15px; accent-color: var(--accent); }
+
+  .chk-sub { margin: 8px 0 6px; font-size: 12.5px; color: var(--text-faint); }
+
+  .chk-group { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+
+  .step-row { display: flex; gap: 10px; align-items: flex-start; padding: 12px; margin-bottom: 10px; border: 1px solid var(--border); border-radius: 8px; background: #fbfcfe; }
+
+  .step-node { width: 104px; flex-shrink: 0; display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-sub); }
+
+  .step-node .form-input { width: 68px; height: 34px; padding: 0 8px; }
+
+  .step-col { flex: 1; min-width: 0; }
+
+  .step-del { width: 28px; height: 28px; flex-shrink: 0; border: none; background: #eef2f8; color: var(--text-faint); border-radius: 6px; font-size: 16px; cursor: pointer; display: grid; place-items: center; }
+
+  .step-del:hover { background: #fde8e8; color: #e03131; }
+
+  @media (max-width: 560px) {
+
+    .step-row { flex-direction: column; }
+
+    .step-node { width: 100%; }
+
+    .form-row2 { flex-direction: column; }
+
+  }
+
+
+
+  /* ===== 处置流程可视化（三端泳道，纯静态） ===== */
+  .viz-flow { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px 18px; margin-bottom: 16px; }
+  .viz-flow:last-child { margin-bottom: 0; }
+  .viz-flow-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .viz-flow-name { font-size: 15px; font-weight: 600; color: var(--text-main); }
+  .viz-flow-desc { margin: -2px 0 10px; font-size: 12px; color: var(--text-sub); line-height: 1.5; }
+  .viz-grid { display: grid; gap: 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .viz-lane { display: grid; grid-template-columns: 96px repeat(var(--cols, 4), minmax(0, 1fr)); align-items: stretch; }
+  .viz-lane + .viz-lane { border-top: 1px solid var(--border); }
+  .viz-lane-tag { display: flex; align-items: center; justify-content: center; padding: 10px 6px; font-size: 13px; font-weight: 600; color: var(--text-main); border-right: 1px solid var(--border); }
+  .viz-cell { border-left: 1px dashed #d8e0ec; padding: 10px 8px; min-height: 12px; }
+  .viz-lane-tag + .viz-cell { border-left: 0; }
+  .viz-cell-empty { min-height: 12px; }
+  .viz-time-row { background: #f8fafd; }
+  .viz-time-cell { display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 600; color: var(--text-sub); white-space: nowrap; }
+  .viz-duty { background: #f4f7fb; --lane-c: #2b6fe0; }
+  .viz-ent { background: #f6fbf7; --lane-c: #2b8a3e; }
+  .viz-gov { background: #fff8f2; --lane-c: #e8590c; }
+  .viz-node-card { position: relative; background: #fff; border: 1px solid var(--border); border-left: 3px solid var(--lane-c); border-radius: 8px; padding: 8px 10px; }
+  .viz-node-title { font-size: 13px; font-weight: 600; color: var(--text-main); }
+  .viz-node-sub { margin-top: 3px; font-size: 12px; color: var(--text-sub); line-height: 1.45; }
+  .viz-red, .viz-yellow, .viz-blue { /* 等级色由头部标签表达 */ }
+  @media (max-width: 720px) {
+    .viz-lane { grid-template-columns: 76px minmax(0, 1fr); }
+    .viz-cell { grid-column: 2; border-left: 0; padding: 6px 0; }
+    .viz-time-row .viz-cell { padding: 4px 0; }
+    .viz-lane-tag { justify-content: flex-start; padding: 8px 10px; }
+    .viz-node-card { padding: 7px 9px; }
+  }
+
+  /* ===== 响应式 ===== */
+
+  @media (max-width: 1023px) {
+
+    .sidebar { transform: translateX(-100%); }
+
+    .sidebar.open { transform: none; box-shadow: 6px 0 24px rgba(8, 25, 60, .35); }
+
+    .sidebar-mask.show { display: block; }
+
+    .main { margin-left: 0; padding: 18px 16px 30px; }
+
+    .menu-toggle { display: inline-flex; min-width: 44px; min-height: 44px; }
+
+    .screen-btn { min-height: 44px; }
+
+    .brand-name { font-size: 16px; }
+
+  }
+
+  @media (max-width: 560px) {
+
+    .topbar { padding: 0 12px; }
+
+    .brand-logo { width: 32px; height: 32px; }
+
+    .brand-name { font-size: 15px; letter-spacing: .5px; }
+
+    .brand-en { font-size: 10px; }
+
+    .screen-btn { padding: 0 12px; font-size: 12px; }
+
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+
+  }
+
+</style>
+
+</head>
+
+<body>
+
+
+
+<!-- ===== 顶栏 ===== -->
+
+<header class="topbar">
+
+  <div class="brand">
+
+    <div class="brand-logo">
+
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-3.5 8-10V5l-8-3-8 3v7c0 6.5 8 10 8 10Z"/><path d="m9 11.5 2 2 4-4"/></svg>
+
+    </div>
+
+    <div class="brand-text">
+
+      <div class="brand-name">合肥市工贸安全监管平台</div>
+
+      <div class="brand-en">HEFEI · INDUSTRIAL SAFETY</div>
+
+    </div>
+
+  </div>
+
+  <div class="topbar-right">
+
+    <button class="screen-btn" id="screenBtn" type="button">
+
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14 21 3"/></svg>
+
+      进入监管大屏
+
+    </button>
+
+    <button class="menu-toggle" id="menuToggle" type="button" aria-label="展开菜单">
+
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+
+    </button>
+
+  </div>
+
+</header>
+
+
+
+<div class="layout">
+
+  <!-- ===== 侧边导航 ===== -->
+
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="sidebar-mask" id="sidebarMask"></div>
+
+
+
+  <!-- ===== 主内容 ===== -->
+
+  <main class="main">
+
+    <nav class="breadcrumb" aria-label="面包屑">
+
+      <a id="crumbHome">基础配置</a>
+
+      <span class="sep">/</span>
+
+      <span class="cur" id="crumbCur">监管重点部位配置</span>
+
+    </nav>
+
+
+
+    <!-- ===== 视图：监管重点部位配置 ===== -->
+
+    <section class="view" id="viewSites">
+
+      <section class="list-card">
+
+        <div class="list-toolbar">
+
+          <div class="list-count">共 <b id="countNum">0</b> 条记录</div>
+
+          <button class="btn btn-primary" id="addBtn" type="button">
+
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+
+            新增重点部位
+
+          </button>
+
+        </div>
+
+        <div class="table-wrap">
+
+          <table class="list">
+
+            <colgroup>
+
+              <col style="width:8%">
+
+              <col style="width:20%">
+
+              <col style="width:34%">
+
+              <col style="width:16%">
+
+              <col style="width:22%">
+
+            </colgroup>
+
+            <thead>
+
+              <tr>
+
+                <th>序号</th>
+
+                <th>监管类别</th>
+
+                <th>所属重点部位</th>
+
+                <th>风险等级</th>
+
+                <th>操作</th>
+
+              </tr>
+
+            </thead>
+
+            <tbody id="listBody"></tbody>
+
+          </table>
+
+        </div>
+
+      </section>
+
+    </section>
+
+
+
+    <!-- ===== 视图：感知事件等级配置 ===== -->
+
+    <section class="view view-hidden" id="viewPerception">
+
+      <div class="tabs" role="tablist">
+
+        <button class="tab-item active" id="tabMonitor" type="button">监测项及报警配置</button>
+
+        <button class="tab-item" id="tabRule" type="button">风险预警等级配置</button>
+
+      </div>
+
+
+
+      <div class="tab-panel" id="panelMonitor">
+
+        <section class="list-card">
+
+          <div class="list-toolbar">
+
+            <div class="list-count">监测项和报警配置 · 共 <b id="monitorCount">0</b> 项</div>
+
+          </div>
+
+          <div class="table-wrap">
+
+            <table class="list">
+
+              <colgroup>
+
+                <col style="width:8%">
+
+                <col style="width:22%">
+
+                <col style="width:70%">
+
+              </colgroup>
+
+              <thead>
+
+                <tr>
+
+                  <th>序号</th>
+
+                  <th>监测项</th>
+
+                  <th>监测报警</th>
+
+                </tr>
+
+              </thead>
+
+              <tbody id="monitorBody"></tbody>
+
+            </table>
+
+          </div>
+
+        </section>
+
+      </div>
+
+
+
+      <div class="tab-panel panel-hidden" id="panelRule">
+
+        <section class="list-card">
+
+          <div class="list-toolbar">
+
+            <div class="list-count">共 <b id="ruleCount">0</b> 条记录</div>
+
+            <button class="btn btn-primary" id="addRuleBtn" type="button">
+
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+
+              新增规则
+
+            </button>
+
+          </div>
+
+          <div class="table-wrap">
+
+            <table class="list">
+
+              <colgroup>
+
+                <col style="width:7%">
+
+                <col style="width:18%">
+
+                <col style="width:15%">
+
+                <col style="width:20%">
+
+                <col style="width:15%">
+
+                <col style="width:25%">
+
+              </colgroup>
+
+              <thead>
+
+                <tr>
+
+                  <th>序号</th>
+
+                  <th>监测项</th>
+
+                  <th>监测报警</th>
+
+                  <th>重点部位风险等级</th>
+
+                  <th>风险预警等级</th>
+
+                  <th>操作</th>
+
+                </tr>
+
+              </thead>
+
+              <tbody id="ruleBody"></tbody>
+
+            </table>
+
+          </div>
+
+        </section>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ===== 视图：AI监测事件等级 ===== -->
+
+    <section class="view view-hidden" id="viewAI">
+
+      <div class="tabs" role="tablist">
+
+        <button class="tab-item active" id="tabAIMonitor" type="button">AI监测项和报警配置</button>
+
+        <button class="tab-item" id="tabAIRule" type="button">AI风险预警等级配置</button>
+
+      </div>
+
+
+
+      <div class="tab-panel" id="panelAIMonitor">
+
+        <section class="list-card">
+
+          <div class="list-toolbar">
+
+            <div class="list-count">AI监测项和报警配置 · 共 <b id="aiMonitorCount">0</b> 项</div>
+
+          </div>
+
+          <div class="table-wrap">
+
+            <table class="list">
+
+              <colgroup>
+
+                <col style="width:8%">
+
+                <col style="width:22%">
+
+                <col style="width:70%">
+
+              </colgroup>
+
+              <thead>
+
+                <tr>
+
+                  <th>序号</th>
+
+                  <th>监测项</th>
+
+                  <th>监测报警</th>
+
+                </tr>
+
+              </thead>
+
+              <tbody id="aiMonitorBody"></tbody>
+
+            </table>
+
+          </div>
+
+        </section>
+
+      </div>
+
+
+
+      <div class="tab-panel panel-hidden" id="panelAIRule">
+
+        <section class="list-card">
+
+          <div class="list-toolbar">
+
+            <div class="list-count">共 <b id="aiRuleCount">0</b> 条记录</div>
+
+            <button class="btn btn-primary" id="addAIRuleBtn" type="button">
+
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+
+              新增规则
+
+            </button>
+
+          </div>
+
+          <div class="table-wrap">
+
+            <table class="list">
+
+              <colgroup>
+
+                <col style="width:7%">
+
+                <col style="width:18%">
+
+                <col style="width:15%">
+
+                <col style="width:20%">
+
+                <col style="width:15%">
+
+                <col style="width:25%">
+
+              </colgroup>
+
+              <thead>
+
+                <tr>
+
+                  <th>序号</th>
+
+                  <th>监测项</th>
+
+                  <th>监测报警</th>
+
+                  <th>重点部位风险等级</th>
+
+                  <th>风险预警等级</th>
+
+                  <th>操作</th>
+
+                </tr>
+
+              </thead>
+
+              <tbody id="aiRuleBody"></tbody>
+
+            </table>
+
+          </div>
+
+        </section>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ===== 视图：分级预警处置配置 ===== -->
+
+    <section class="view view-hidden" id="viewDispose">
+
+      <div class="tabs" role="tablist">
+
+        <button class="tab-item active" id="tabFlow" type="button">处置流程节点配置</button>
+
+        <button class="tab-item" id="tabRole" type="button">处置岗位配置</button>
+
+        <button class="tab-item" id="tabViz" type="button">可视化处置流程体系</button>
+        <button class="tab-item" id="tabTemplate" type="button">通知模板配置</button>
+
+      </div>
+
+
+
+      <div class="tab-panel" id="panelFlow">
+
+        <div class="flow-hint">三档处置流程 · 流程节点时限与处置岗位均可自定义（保存后即时生效）</div>
+
+        <div id="flowCards"></div>
+
+      </div>
+
+
+
+      <div class="tab-panel panel-hidden" id="panelRole">
+
+        <section class="list-card">
+
+          <div class="list-toolbar">
+
+            <div class="list-count">处置岗位库 · 共 <b id="roleCount">0</b> 个岗位</div>
+
+            <button class="btn btn-primary" id="addRoleBtn" type="button">
+
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+
+              新增岗位
+
+            </button>
+
+          </div>
+
+          <div class="table-wrap">
+
+            <table class="list">
+
+              <colgroup>
+
+                <col style="width:8%">
+
+                <col style="width:26%">
+
+                <col style="width:22%">
+
+                <col style="width:28%">
+
+                <col style="width:16%">
+
+              </colgroup>
+
+              <thead>
+
+                <tr>
+
+                  <th>序号</th>
+
+                  <th>岗位名称</th>
+
+                  <th>所属端</th>
+
+                  <th>岗位说明</th>
+
+                  <th>操作</th>
+
+                </tr>
+
+              </thead>
+
+              <tbody id="roleBody"></tbody>
+
+            </table>
+
+          </div>
+
+        </section>
+
+      </div>
+
+
+
+      <div class="tab-panel panel-hidden" id="panelTemplate">
+        <div class="flow-hint">按预警等级配置通知内容、通知岗位和推送方式，消息发送时自动替换模板变量</div>
+        <section class="list-card notice-template-card">
+          <div class="list-toolbar">
+            <div class="notice-toolbar-copy">已配置通知模板 · 共 <b id="noticeTemplateCount">0</b> 条</div>
+            <button class="btn btn-primary" id="addNoticeTemplateBtn" type="button">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+              新建通知模板
+            </button>
+          </div>
+          <div class="table-wrap">
+            <table class="list notice-table">
+              <colgroup>
+                <col style="width:5%">
+                <col style="width:13%">
+                <col style="width:27%">
+                <col style="width:16%">
+                <col style="width:12%">
+                <col style="width:15%">
+                <col style="width:12%">
+              </colgroup>
+              <thead><tr><th>序号</th><th>预警等级</th><th>通知信息内容</th><th>通知岗位</th><th>推送方式</th><th>更新时间</th><th>操作</th></tr></thead>
+              <tbody id="noticeTemplateBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+      <div class="tab-panel panel-hidden" id="panelViz">
+
+        <div class="flow-hint">三档处置流程 · 值守端 / 企业端 / 监管端三端泳道可视化（示意，时间非等比缩放）· 数据随「处置流程配置」实时联动</div>
+
+        <div id="vizList"></div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
+
+
+
+<!-- ===== 新增 / 编辑模态框 ===== -->
+
+<div class="modal-mask drawer-mask" id="formModal">
+
+  <div class="modal drawer" role="dialog" aria-modal="true">
+
+    <div class="modal-head">
+
+      <span class="modal-title" id="formTitle">新增重点部位</span>
+
+      <button class="modal-close" id="formClose" type="button" aria-label="关闭">
+
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <div class="form-item">
+
+        <label><i>*</i>行业监管类别</label>
+
+        <select class="form-select" id="fCategory">
+
+          <option value="">请选择监管类别</option>
+
+          <option value="工贸涉危">工贸涉危</option>
+
+          <option value="工贸涉金属熔融">工贸涉金属熔融</option>
+
+          <option value="非煤矿山">非煤矿山</option>
+
+          <option value="工贸涉有限空间">工贸涉有限空间</option>
+
+        </select>
+
+        <p class="form-err" id="errCategory">请选择行业监管类别</p>
+
+      </div>
+
+      <div class="form-item">
+
+        <label><i>*</i>所属重点部位</label>
+
+        <input class="form-input" id="fName" type="text" maxlength="30" placeholder="请输入所属重点部位">
+
+        <p class="form-err" id="errName">请输入所属重点部位</p>
+
+      </div>
+
+      <div class="form-item">
+
+        <label><i>*</i>风险等级</label>
+
+        <select class="form-select" id="fLevel">
+
+          <option value="">请选择风险等级</option>
+
+          <option value="重大风险">重大风险</option>
+
+          <option value="较大风险">较大风险</option>
+
+          <option value="一般风险">一般风险</option>
+
+          <option value="低风险">低风险</option>
+
+        </select>
+
+        <p class="form-err" id="errLevel">请选择风险等级</p>
+
+      </div>
+
+    </div>
+
+    <div class="modal-foot">
+
+      <button class="btn btn-ghost" id="formCancel" type="button">取消</button>
+
+      <button class="btn btn-primary" id="formSave" type="button">确定</button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- ===== 新增 / 编辑风险预警等级规则抽屉 ===== -->
+
+<div class="modal-mask drawer-mask" id="ruleModal">
+
+  <div class="modal drawer" role="dialog" aria-modal="true">
+
+    <div class="modal-head">
+
+      <span class="modal-title" id="ruleFormTitle">新增规则</span>
+
+      <button class="modal-close" id="ruleClose" type="button" aria-label="关闭">
+
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <div class="form-item">
+
+        <label><i>*</i>监测项</label>
+
+        <select class="form-select" id="fRItem">
+
+          <option value="">请选择监测项</option>
+
+        </select>
+
+        <p class="form-err" id="errRItem">请选择监测项</p>
+
+      </div>
+
+      <div class="form-item">
+
+        <label><i>*</i>监测报警</label>
+
+        <select class="form-select" id="fRAlarm">
+
+          <option value="">请先选择监测项</option>
+
+        </select>
+
+        <p class="form-err" id="errRAlarm">请选择监测报警</p>
+
+      </div>
+
+      <div class="form-item">
+
+        <label><i>*</i>重点部位风险等级</label>
+
+        <select class="form-select" id="fRRisk">
+
+          <option value="">请选择风险等级</option>
+
+          <option value="重大风险">重大风险</option>
+
+          <option value="较大风险">较大风险</option>
+
+          <option value="一般风险">一般风险</option>
+
+          <option value="低风险">低风险</option>
+
+        </select>
+
+        <p class="form-err" id="errRRisk">请选择重点部位风险等级</p>
+
+      </div>
+
+      <div class="form-item">
+
+        <label><i>*</i>风险预警等级</label>
+
+        <select class="form-select" id="fREvent">
+
+          <option value="">请选择风险预警等级</option>
+
+          <option value="Ⅰ 红色·紧急">Ⅰ 红色·紧急</option>
+
+          <option value="Ⅱ 黄色·一般">Ⅱ 黄色·一般</option>
+
+          <option value="Ⅲ 蓝色·提示">Ⅲ 蓝色·提示</option>
+
+        </select>
+
+        <p class="form-err" id="errREvent">请选择风险预警等级</p>
+
+      </div>
+
+    </div>
+
+    <div class="modal-foot">
+
+      <button class="btn btn-ghost" id="ruleCancel" type="button">取消</button>
+
+      <button class="btn btn-primary" id="ruleSave" type="button">确定</button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- ===== 新增 / 编辑AI风险预警等级规则抽屉 ===== -->
+
+<div class="modal-mask drawer-mask" id="aiRuleModal">
+
+  <div class="modal drawer" role="dialog" aria-modal="true">
+
+    <div class="modal-head">
+
+      <span class="modal-title" id="aiRuleFormTitle">新增规则</span>
+
+      <button class="modal-close" id="aiRuleClose" type="button" aria-label="关闭">
+
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <div class="form-item">
+
+        <label><i>*</i>监测项</label>
+
+        <select class="form-select" id="fAIRItem">
+
+          <option value="">请选择监测项</option>
+
+        </select>
+
+        <p class="form-err" id="errAIRItem">请选择监测项</p>
+
+      </div>
+
+      <div class="form-item">
+
+        <label><i>*</i>监测报警</label>
+
+        <select class="form-select" id="fAIRAlarm">
+
+          <option value="">请先选择监测项</option>
+
+        </select>
+
+        <p class="form-err" id="errAIRAlarm">请选择监测报警</p>
+
+      </div>
+
+      <div class="form-item">
+
+        <label><i>*</i>重点部位风险等级</label>
+
+        <select class="form-select" id="fAIRRisk">
+
+          <option value="">请选择风险等级</option>
+
+          <option value="重大风险">重大风险</option>
+
+          <option value="较大风险">较大风险</option>
+
+          <option value="一般风险">一般风险</option>
+
+          <option value="低风险">低风险</option>
+
+        </select>
+
+        <p class="form-err" id="errAIRRisk">请选择重点部位风险等级</p>
+
+      </div>
+
+      <div class="form-item">
+
+        <label><i>*</i>风险预警等级</label>
+
+        <select class="form-select" id="fAIREvent">
+
+          <option value="">请选择风险预警等级</option>
+
+          <option value="Ⅰ 红色·紧急">Ⅰ 红色·紧急</option>
+
+          <option value="Ⅱ 黄色·一般">Ⅱ 黄色·一般</option>
+
+          <option value="Ⅲ 蓝色·提示">Ⅲ 蓝色·提示</option>
+
+        </select>
+
+        <p class="form-err" id="errAIREvent">请选择风险预警等级</p>
+
+      </div>
+
+    </div>
+
+    <div class="modal-foot">
+
+      <button class="btn btn-ghost" id="aiRuleCancel" type="button">取消</button>
+
+      <button class="btn btn-primary" id="aiRuleSave" type="button">确定</button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- ===== 编辑处置流程抽屉 ===== -->
+
+<div class="modal-mask drawer-mask" id="flowModal">
+
+  <div class="modal drawer" role="dialog" aria-modal="true">
+
+    <div class="modal-head">
+
+      <span class="modal-title" id="flowFormTitle">编辑处置流程</span>
+
+      <button class="modal-close" id="flowClose" type="button" aria-label="关闭">
+
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <div class="form-item">
+
+        <label>当前流程</label>
+
+        <span class="flow-level-tag" id="flowLevelLabel"></span>
+
+      </div>
+
+      <div class="form-item form-row2">
+
+        <div>
+
+          <label>电话通知时限（分钟）</label>
+
+          <input class="form-input" id="fNotice" type="number" min="0" step="1" placeholder="如 2">
+
+        </div>
+
+        <div>
+
+          <label>核警时限（分钟）</label>
+
+          <input class="form-input" id="fVerify" type="number" min="0" step="1" placeholder="如 5">
+
+        </div>
+
+      </div>
+
+      <div class="form-item">
+
+        <label>企业推送方式</label>
+
+        <div class="chk-inline">
+
+          <label class="chk-item"><input type="checkbox" id="fPushApp">APP 推送</label>
+
+          <label class="chk-item"><input type="checkbox" id="fPushSms">短信推送</label>
+
+        </div>
+
+      </div>
+
+      <div class="form-item">
+
+        <label>超时限未闭环督办时限（分钟）</label>
+
+        <input class="form-input" id="fSupervise" type="number" min="0" step="1" placeholder="留空表示暂不督办">
+
+      </div>
+
+      <div class="form-item" id="flowStepsWrap">
+
+        <label>监管端分级督办阶梯（节点时长与岗位可增删改）</label>
+
+        <div id="stepRows"></div>
+
+        <button class="btn btn-ghost" id="addStepBtn" type="button">添加节点</button>
+
+      </div>
+
+    </div>
+
+    <div class="modal-foot">
+
+      <button class="btn btn-ghost" id="flowCancel" type="button">取消</button>
+
+      <button class="btn btn-primary" id="flowSave" type="button">确定</button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- ===== 新增 / 编辑处置岗位抽屉 ===== -->
+
+<div class="modal-mask drawer-mask" id="roleModal">
+
+  <div class="modal drawer" role="dialog" aria-modal="true">
+
+    <div class="modal-head">
+
+      <span class="modal-title" id="roleFormTitle">新增岗位</span>
+
+      <button class="modal-close" id="roleClose" type="button" aria-label="关闭">
+
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <div class="form-item">
+
+        <label><i>*</i>选择岗位</label>
+
+        <select class="form-select" id="fRName">
+
+          <option value="">请选择岗位</option>
+
+        </select>
+
+        <p class="form-help">岗位来源于组织管理 - 岗位管理，并与岗位列表保持同步</p>
+
+        <p class="form-err" id="errRName">请选择岗位</p>
+
+      </div>
+
+      <div class="form-item">
+
+        <label><i>*</i>所属端</label>
+
+        <select class="form-select" id="fRSide">
+
+          <option value="">请选择所属端</option>
+
+          <option value="监管端-市局">监管端-市局</option>
+
+          <option value="监管端-县（区）局">监管端-县（区）局</option>
+
+          <option value="企业端">企业端</option>
+
+        </select>
+
+        <p class="form-err" id="errRSide">请选择所属端</p>
+
+      </div>
+
+      <div class="form-item">
+
+        <label>岗位说明</label>
+
+        <input class="form-input" id="fRPost" type="text" maxlength="40" placeholder="选填">
+
+      </div>
+
+    </div>
+
+    <div class="modal-foot">
+
+      <button class="btn btn-ghost" id="roleCancel" type="button">取消</button>
+
+      <button class="btn btn-primary" id="roleSave" type="button">确定</button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- ===== 新建 / 编辑通知模板抽屉 ===== -->
+
+<div class="modal-mask drawer-mask" id="noticeModal">
+
+  <div class="modal drawer notice-drawer" role="dialog" aria-modal="true" aria-labelledby="noticeFormTitle">
+
+    <div class="modal-head">
+
+      <span class="modal-title" id="noticeFormTitle">新建通知模板</span>
+
+      <button class="modal-close" id="noticeClose" type="button" aria-label="关闭">
+
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <div class="form-item">
+
+        <label><i>*</i>预警等级</label>
+
+        <select class="form-select" id="fNLevel">
+
+          <option value="">请选择预警等级</option>
+
+          <option value="紧急">Ⅰ级 · 红色紧急</option>
+
+          <option value="一般">Ⅱ级 · 黄色一般</option>
+
+          <option value="提示">Ⅲ级 · 蓝色提示</option>
+
+        </select>
+
+        <p class="form-err" id="errNLevel">请选择预警等级</p>
+
+      </div>
+
+      <div class="form-item">
+
+        <label><i>*</i>通知信息内容</label>
+
+        <textarea class="notice-textarea" id="fNContent" maxlength="500" placeholder="请输入通知信息内容"></textarea>
+
+        <div class="notice-field-meta"><span id="noticeCharCount">0 / 500</span></div>
+
+        <div class="notice-vars" aria-label="可插入变量">
+
+          <span>插入变量</span>
+
+          <button type="button" data-notice-var="{预警等级}">预警等级</button>
+
+          <button type="button" data-notice-var="{企业名称}">企业名称</button>
+
+          <button type="button" data-notice-var="{报警内容}">报警内容</button>
+
+          <button type="button" data-notice-var="{报警时间}">报警时间</button>
+
+          <button type="button" data-notice-var="{处置时限}">处置时限</button>
+
+          <button type="button" data-notice-var="{通知对象}">通知对象</button>
+
+        </div>
+
+        <p class="form-err" id="errNContent">请输入通知信息内容</p>
+
+      </div>
+
+      <div class="form-item">
+
+        <label><i>*</i>通知岗位</label>
+
+        <div class="notice-role-options" id="noticeRoleOptions"></div>
+
+        <div class="notice-selected-count" id="noticeRoleCount">已选择 0 个岗位</div>
+
+        <p class="form-err" id="errNRoles">请至少选择一个通知岗位</p>
+
+      </div>
+
+      <div class="form-item">
+
+        <label><i>*</i>推送方式</label>
+
+        <div class="notice-methods">
+
+          <label class="notice-method-card"><input type="checkbox" name="noticeMethod" value="系统消息">系统消息</label>
+
+          <label class="notice-method-card"><input type="checkbox" name="noticeMethod" value="短信通知">短信通知</label>
+
+        </div>
+
+        <p class="form-err" id="errNMethods">请至少选择一种推送方式</p>
+
+      </div>
+
+    </div>
+
+    <div class="modal-foot">
+
+      <button class="btn btn-ghost" id="noticeCancel" type="button">取消</button>
+
+      <button class="btn btn-primary" id="noticeSubmit" type="button">保存</button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- ===== 删除确认框 ===== -->
+
+<div class="modal-mask" id="delModal">
+
+  <div class="modal modal-sm" role="dialog" aria-modal="true">
+
+    <div class="modal-head">
+
+      <span class="modal-title">删除确认</span>
+
+      <button class="modal-close" id="delClose" type="button" aria-label="关闭">
+
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+
+      </button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <p class="del-tip">确定要删除该重点部位吗？删除后不可恢复。</p>
+
+    </div>
+
+    <div class="modal-foot">
+
+      <button class="btn btn-ghost" id="delCancel" type="button">取消</button>
+
+      <button class="btn btn-danger" id="delOk" type="button">删除</button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<div class="toast" id="toast" role="status"></div>
+
+
+
+<script>
+
+(function () {
+
+  'use strict';
+
+
+
+  var ICONS = {
+
+    map: '<svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14M15 6v14"/></svg>',
+
+    folder: '<svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/></svg>',
+
+    clipboard: '<svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="m9.5 13 2 2 3.5-3.5"/></svg>',
+
+    monitor: '<svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>',
+
+    video: '<svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 10 6-3v10l-6-3"/></svg>',
+
+    alert: '<svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.7 3.86a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg>',
+
+    users: '<svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+
+    settings: '<svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h0a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55h0a1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v0a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1Z"/></svg>',
+
+    shield: '<svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-3.5 8-10V5l-8-3-8 3v7c0 6.5 8 10 8 10Z"/><path d="m9 11.5 2 2 4-4"/></svg>',
+
+    activity: '<svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',
+
+    cpu: '<svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="14" height="14" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v4M15 1v4M9 19v4M15 19v4M1 9h4M1 15h4M19 9h4M19 15h4"/></svg>',
+
+    list: '<svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="4" cy="6" r="1.1" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.1" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.1" fill="currentColor" stroke="none"/></svg>',
+
+    bell: '<svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>',
+
+    grid: '<svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
+
+    caret: '<svg class="caret" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>'
+
+  };
+
+
+
+  var MENU = [
+
+    { icon: 'map', label: '安全监管一张图' },
+
+    { icon: 'folder', label: '企业安全档案' },
+
+    { icon: 'video', label: '视频远程AI监护' },
+
+    { icon: 'alert', label: '安全事件中心' },
+
+    { icon: 'users', label: '组织管理' },
+
+    {
+
+      icon: 'settings', label: '基础配置', open: true,
+
+      children: [
+
+        { icon: 'shield', label: '监管重点部位配置', active: true },
+
+        { icon: 'activity', label: '感知事件等级配置' },
+
+        { icon: 'cpu', label: 'AI监测事件等级' },
+
+        { icon: 'list', label: '分级预警处置配置' }
+
+      ]
+
+    }
+
+  ];
+
+
+
+  var sidebar = document.getElementById('sidebar');
+
+  var fragment = document.createDocumentFragment();
+
+
+
+  MENU.forEach(function (item) {
+
+    if (item.children) {
+
+      var group = document.createElement('div');
+
+      group.className = 'nav-group' + (item.open ? ' open' : '');
+
+      group.dataset.group = '1';
+
+
+
+      var title = document.createElement('div');
+
+      title.className = 'nav-group-title';
+
+      title.innerHTML = ICONS[item.icon] + '<span>' + item.label + '</span>' + ICONS.caret;
+
+      group.appendChild(title);
+
+
+
+      var children = document.createElement('div');
+
+      children.className = 'nav-children';
+
+      item.children.forEach(function (sub) {
+
+        var el = document.createElement('div');
+
+        el.className = 'nav-item' + (sub.active ? ' active' : '');
+
+        el.dataset.label = sub.label;
+
+        el.innerHTML = ICONS[sub.icon] + '<span>' + sub.label + '</span>';
+
+        children.appendChild(el);
+
+      });
+
+      group.appendChild(children);
+
+      fragment.appendChild(group);
+
+    } else {
+
+      var el = document.createElement('div');
+
+      el.className = 'nav-item';
+
+      el.dataset.label = item.label;
+
+      el.innerHTML = ICONS[item.icon] + '<span>' + item.label + '</span>';
+
+      fragment.appendChild(el);
+
+    }
+
+  });
+
+  sidebar.appendChild(fragment);
+
+
+
+  /* ===== Toast ===== */
+
+  var toast = document.getElementById('toast');
+
+  var toastTimer = null;
+
+  window.showToast = function (msg) {
+
+    toast.textContent = msg;
+
+    toast.classList.add('show');
+
+    clearTimeout(toastTimer);
+
+    toastTimer = setTimeout(function () { toast.classList.remove('show'); }, 2200);
+
+  }
+
+
+
+  /* ===== 侧边栏交互 ===== */
+
+  sidebar.addEventListener('click', function (e) {
+
+    var groupTitle = e.target.closest('.nav-group-title');
+
+    if (groupTitle) {
+
+      groupTitle.parentElement.classList.toggle('open');
+
+      return;
+
+    }
+
+    var item = e.target.closest('.nav-item');
+
+    if (!item || !item.dataset.label) return;
+
+    if (item.dataset.label === '感知事件等级配置') { window.switchView('perception'); return; }
+
+    if (item.dataset.label === 'AI监测事件等级') { window.switchView('ai'); return; }
+
+    if (item.dataset.label === '分级预警处置配置') { window.switchView('dispose'); return; }
+
+    if (item.dataset.label === '监管重点部位配置') { window.switchView('sites'); return; }
+
+    showToast('演示中：' + item.dataset.label);
+
+  });
+
+
+
+  /* ===== 顶栏交互 ===== */
+
+  document.getElementById('screenBtn').addEventListener('click', function () {
+
+    showToast('演示中：进入监管大屏');
+
+  });
+
+  document.getElementById('crumbHome').addEventListener('click', function () {
+
+    showToast('演示中：基础配置');
+
+  });
+
+
+
+  /* ===== 移动端菜单 ===== */
+
+  var mask = document.getElementById('sidebarMask');
+
+  var toggle = document.getElementById('menuToggle');
+
+  function setMenu(open) {
+
+    sidebar.classList.toggle('open', open);
+
+    mask.classList.toggle('show', open);
+
+  }
+
+  toggle.addEventListener('click', function () {
+
+    setMenu(!sidebar.classList.contains('open'));
+
+  });
+
+  mask.addEventListener('click', function () { setMenu(false); });
+
+  window.addEventListener('resize', function () {
+
+    if (window.innerWidth > 1023) setMenu(false);
+
+  });
+
+})();
+
+
+
+/* ===== 视图切换（全局） ===== */
+
+window.switchView = function (name) {
+
+  var sites = document.getElementById('viewSites');
+
+  var perc = document.getElementById('viewPerception');
+
+  var ai = document.getElementById('viewAI');
+
+  var disp = document.getElementById('viewDispose');
+
+  var crumb = document.getElementById('crumbCur');
+
+  var views = [sites, perc, ai, disp];
+
+  var titles = { perception: '感知事件等级配置', ai: 'AI监测事件等级', dispose: '分级预警处置配置', sites: '监管重点部位配置' };
+
+  var t = titles[name] || titles.sites;
+
+  /* 侧栏菜单选中态：与当前视图联动 */
+
+  var labelMap = { sites: '监管重点部位配置', perception: '感知事件等级配置', ai: 'AI监测事件等级', dispose: '分级预警处置配置' };
+
+  var activeLabel = labelMap[name] || '监管重点部位配置';
+
+  var subItems = document.querySelectorAll('.nav-item');
+
+  for (var i = 0; i < subItems.length; i++) {
+
+    var el = subItems[i];
+
+    el.classList.toggle('active', el.getAttribute('data-label') === activeLabel);
+
+  }
+
+  views.forEach(function (v) { if (v) v.classList.add('view-hidden'); });
+
+  var target = document.getElementById('view' + (name === 'dispose' ? 'Dispose' : (name === 'perception' ? 'Perception' : (name === 'ai' ? 'AI' : 'Sites'))));
+
+  if (target) target.classList.remove('view-hidden');
+
+  crumb.textContent = t;
+
+  var sb = document.getElementById('sidebar');
+
+  var mk = document.getElementById('sidebarMask');
+
+  if (sb) sb.classList.remove('open');
+
+  if (mk) mk.classList.remove('show');
+
+};
+
+
+
+/* ===== 监管重点部位配置：数据与列表逻辑 ===== */
+
+(function () {
+
+  'use strict';
+
+
+
+  var LEVEL_CLS = { '重大风险': 'tag-major', '较大风险': 'tag-large', '一般风险': 'tag-mid', '低风险': 'tag-low' };
+
+  var SEED = [
+
+    /* 工贸涉危（企业 21 家） */
+
+    { category: '工贸涉危', name: '危险化学品存储区（储罐本体、仓库）', level: '重大风险' },
+
+    { category: '工贸涉危', name: '危险化学品装卸口', level: '重大风险' },
+
+    { category: '工贸涉危', name: '企业出入口、应急疏散通道', level: '一般风险' },
+
+    { category: '工贸涉危', name: '生产车间', level: '较大风险' },
+
+    { category: '工贸涉危', name: '消防重点部位', level: '较大风险' },
+
+    /* 工贸涉有限空间（企业 10 家） */
+
+    { category: '工贸涉有限空间', name: '污水井', level: '重大风险' },
+
+    { category: '工贸涉有限空间', name: '化粪池', level: '重大风险' },
+
+    { category: '工贸涉有限空间', name: '沼气池', level: '重大风险' },
+
+    { category: '工贸涉有限空间', name: '发酵池', level: '重大风险' },
+
+    { category: '工贸涉有限空间', name: '纸浆池', level: '重大风险' },
+
+    { category: '工贸涉有限空间', name: '污水处理池', level: '重大风险' },
+
+    /* 非煤矿山（企业 14 家） */
+
+    { category: '非煤矿山', name: '入井口、井下掘进工作面', level: '重大风险' },
+
+    { category: '非煤矿山', name: '中央变电所', level: '较大风险' },
+
+    { category: '非煤矿山', name: '采区控制室、选矿车间', level: '一般风险' },
+
+    { category: '非煤矿山', name: '尾矿库', level: '重大风险' },
+
+    { category: '非煤矿山', name: '消防重点部位', level: '较大风险' },
+
+    /* 工贸涉金属熔融（企业 10 家） */
+
+    { category: '工贸涉金属熔融', name: '金属熔融作业区、冶炼炉周边', level: '重大风险' },
+
+    { category: '工贸涉金属熔融', name: '高温熔融液体转移区、铸造环节', level: '重大风险' },
+
+    { category: '工贸涉金属熔融', name: '生产车间出入口、应急疏散通道', level: '一般风险' },
+
+    { category: '工贸涉金属熔融', name: '生产车间（熔炼/铸造作业区）', level: '较大风险' },
+
+    { category: '工贸涉金属熔融', name: '消防重点部位', level: '较大风险' }
+
+  ];
+
+  var STORAGE_KEY = 'hf-gongmao-sites-v2';
+
+  var DATA = load();
+
+
+
+  function load() {
+
+    try {
+
+      var raw = localStorage.getItem(STORAGE_KEY);
+
+      if (raw) {
+
+        var arr = JSON.parse(raw);
+
+        if (Object.prototype.toString.call(arr) === '[object Array]') return arr;
+
+      }
+
+    } catch (e) {}
+
+    return SEED.slice();
+
+  }
+
+  function save() {
+
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA)); } catch (e) {}
+
+  }
+
+  function esc(s) {
+
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+  }
+
+
+
+  var listBody = document.getElementById('listBody');
+
+  var countNum = document.getElementById('countNum');
+
+  var formModal = document.getElementById('formModal');
+
+  var delModal = document.getElementById('delModal');
+
+  var formTitle = document.getElementById('formTitle');
+
+  var fCategory = document.getElementById('fCategory');
+
+  var fName = document.getElementById('fName');
+
+  var fLevel = document.getElementById('fLevel');
+
+  var editIndex = null;
+
+  var delIndex = null;
+
+
+
+  function renderList() {
+
+    countNum.textContent = String(DATA.length);
+
+    if (!DATA.length) {
+
+      listBody.innerHTML = '<tr class="empty-row"><td colspan="5">暂无数据，请点击「新增重点部位」进行添加</td></tr>';
+
+      return;
+
+    }
+
+    var html = '';
+
+    DATA.forEach(function (d, i) {
+
+      html += '<tr>'
+
+        + '<td>' + (i + 1) + '</td>'
+
+        + '<td>' + esc(d.category) + '</td>'
+
+        + '<td>' + esc(d.name) + '</td>'
+
+        + '<td><span class="tag ' + (LEVEL_CLS[d.level] || 'tag-mid') + '">' + esc(d.level) + '</span></td>'
+
+        + '<td><button type="button" class="op-btn op-edit" data-i="' + i + '">编辑</button>'
+
+        + '<button type="button" class="op-btn op-del" data-i="' + i + '">删除</button></td>'
+
+        + '</tr>';
+
+    });
+
+    listBody.innerHTML = html;
+
+  }
+
+
+
+  function hideErr() {
+
+    var errs = formModal.querySelectorAll('.form-err');
+
+    for (var i = 0; i < errs.length; i++) errs[i].classList.remove('show');
+
+  }
+
+  function showErr(id) {
+
+    document.getElementById(id).classList.add('show');
+
+  }
+
+
+
+  function openForm(index) {
+
+    editIndex = (index === undefined || index === null) ? null : index;
+
+    hideErr();
+
+    document.getElementById('errName').textContent = '请输入所属重点部位';
+
+    fCategory.value = '';
+
+    fName.value = '';
+
+    fLevel.value = '';
+
+    if (editIndex !== null) {
+
+      formTitle.textContent = '编辑重点部位';
+
+      var d = DATA[editIndex];
+
+      fCategory.value = d.category;
+
+      fName.value = d.name;
+
+      fLevel.value = d.level;
+
+    } else {
+
+      formTitle.textContent = '新增重点部位';
+
+    }
+
+    formModal.classList.add('show');
+
+    setTimeout(function () { fName.focus(); }, 60);
+
+  }
+
+  function closeForm() { formModal.classList.remove('show'); }
+
+
+
+  function saveForm() {
+
+    var category = fCategory.value;
+
+    var name = fName.value.trim();
+
+    var level = fLevel.value;
+
+    var ok = true;
+
+    hideErr();
+
+    if (!category) { showErr('errCategory'); ok = false; }
+
+    if (!name) { showErr('errName'); ok = false; }
+
+    if (!level) { showErr('errLevel'); ok = false; }
+
+    if (!ok) return;
+
+    var dup = DATA.some(function (d, i) {
+
+      return i !== editIndex && d.category === category && d.name === name;
+
+    });
+
+    if (dup) {
+
+      document.getElementById('errName').textContent = '该监管类别下已存在同名重点部位';
+
+      showErr('errName');
+
+      return;
+
+    }
+
+    if (editIndex === null) {
+
+      DATA.push({ category: category, name: name, level: level });
+
+      window.showToast('新增成功');
+
+    } else {
+
+      DATA[editIndex].category = category;
+
+      DATA[editIndex].name = name;
+
+      DATA[editIndex].level = level;
+
+      window.showToast('保存成功');
+
+    }
+
+    save();
+
+    renderList();
+
+    closeForm();
+
+  }
+
+
+
+  /* 删除确认（通用，供各页面复用） */
+
+  window.confirmRemove = function (tip, onOk) {
+
+    var tipEl = delModal.querySelector('.del-tip');
+
+    if (tipEl) tipEl.textContent = tip || '确定要删除该记录吗？删除后不可恢复。';
+
+    window.__delOk = onOk;
+
+    delModal.classList.add('show');
+
+  };
+
+  function closeDel() {
+
+    delModal.classList.remove('show');
+
+    window.__delOk = null;
+
+  }
+
+  function confirmDel() {
+
+    var fn = window.__delOk;
+
+    if (typeof fn === 'function') fn();
+
+    closeDel();
+
+  }
+
+
+
+  /* ===== 事件绑定 ===== */
+
+  document.getElementById('addBtn').addEventListener('click', function () { openForm(null); });
+
+  document.getElementById('formClose').addEventListener('click', closeForm);
+
+  document.getElementById('formCancel').addEventListener('click', closeForm);
+
+  document.getElementById('formSave').addEventListener('click', saveForm);
+
+  document.getElementById('delClose').addEventListener('click', closeDel);
+
+  document.getElementById('delCancel').addEventListener('click', closeDel);
+
+  document.getElementById('delOk').addEventListener('click', confirmDel);
+
+
+
+  listBody.addEventListener('click', function (e) {
+
+    var btn = e.target.closest('.op-btn');
+
+    if (!btn) return;
+
+    var i = parseInt(btn.getAttribute('data-i'), 10);
+
+    if (btn.classList.contains('op-edit')) openForm(i);
+
+    if (btn.classList.contains('op-del')) {
+
+      window.confirmRemove('确定要删除该重点部位吗？删除后不可恢复。', function () {
+
+        DATA.splice(i, 1);
+
+        save();
+
+        renderList();
+
+        window.showToast('删除成功');
+
+      });
+
+    }
+
+  });
+
+
+
+  fName.addEventListener('input', function () {
+
+    document.getElementById('errName').classList.remove('show');
+
+  });
+
+  fCategory.addEventListener('change', function () {
+
+    document.getElementById('errCategory').classList.remove('show');
+
+  });
+
+  fLevel.addEventListener('change', function () {
+
+    document.getElementById('errLevel').classList.remove('show');
+
+  });
+
+
+
+  document.addEventListener('keydown', function (e) {
+
+    if (e.key === 'Escape') {
+
+      if (formModal.classList.contains('show')) closeForm();
+
+      if (delModal.classList.contains('show')) closeDel();
+
+    }
+
+    if (e.key === 'Enter' && formModal.classList.contains('show') && e.target.id === 'fName') {
+
+      saveForm();
+
+    }
+
+  });
+
+
+
+  renderList();
+
+})();
+
+
+
+/* ===== 感知事件等级配置：Tab 与数据逻辑 ===== */
+
+(function () {
+
+  'use strict';
+
+
+
+  var EVENT_CLS = { 'Ⅰ 红色·紧急': 'tag-major', 'Ⅱ 黄色·一般': 'tag-mid', 'Ⅲ 蓝色·提示': 'tag-blue' };
+
+
+
+  var MONITOR_LIST = [
+
+    { item: '液位', alarms: ['高液位报警', '超高液位报警', '低液位报警', '超低液位报警'] },
+
+    { item: '温度', alarms: ['超温报警', '超高温报警', '温度过低报警'] },
+
+    { item: '压力', alarms: ['超压报警', '超高压报警', '欠压报警'] },
+
+    { item: '可燃气体浓度', alarms: ['一级报警', '二级报警'] },
+
+    { item: '有毒气体浓度', alarms: ['一级报警', '二级报警'] },
+
+    { item: '气体浓度', alarms: ['一级报警', '二级报警'] },
+
+    { item: '水害监测', alarms: ['突水/超限报警'] },
+
+    { item: '地压监测', alarms: ['超限报警'] },
+
+    { item: '地表沉降', alarms: ['位移超限报警', '传感器故障/离线'] },
+
+    { item: '火灾', alarms: ['火警信号'] },
+
+    { item: '水压', alarms: ['水压不足'] },
+
+    { item: '位移', alarms: ['位移超限报警'] },
+
+    { item: '浸润线', alarms: ['浸润线异常偏高报警'] },
+
+    { item: '水位', alarms: ['水位超警戒报警'] },
+
+    { item: '干滩', alarms: ['干滩长度不足报警'] },
+
+    { item: '雨量', alarms: ['雨量超限报警'] },
+
+    { item: '温度', alarms: ['超温报警', '超高温报警', '温度过低报警'] },
+
+    { item: '压力', alarms: ['超压报警', '超高压报警', '欠压报警'] }
+
+  ];
+
+  /* 由监测项及报警配置派生下拉数据源（保持列表出现顺序、按监测项去重） */
+
+  var MONITOR_ITEMS = [];
+
+  var MONITOR_ALARMS = {};
+
+  MONITOR_LIST.forEach(function (d) {
+
+    if (MONITOR_ITEMS.indexOf(d.item) === -1) MONITOR_ITEMS.push(d.item);
+
+    if (!MONITOR_ALARMS[d.item]) MONITOR_ALARMS[d.item] = [];
+
+    (d.alarms || []).forEach(function (a) {
+
+      if (MONITOR_ALARMS[d.item].indexOf(a) === -1) MONITOR_ALARMS[d.item].push(a);
+
+    });
+
+  });
+
+
+
+  var RULE_SEED = [
+
+    /* 高危报警 → Ⅰ 红色·紧急（对应重大风险部位） */
+
+    { item: '液位', alarm: '超高液位报警', risk: '重大风险', event: 'Ⅰ 红色·紧急' },
+
+    { item: '温度', alarm: '超高温报警', risk: '重大风险', event: 'Ⅰ 红色·紧急' },
+
+    { item: '压力', alarm: '超高压报警', risk: '重大风险', event: 'Ⅰ 红色·紧急' },
+
+    { item: '水害监测', alarm: '突水/超限报警', risk: '重大风险', event: 'Ⅰ 红色·紧急' },
+
+    { item: '地压监测', alarm: '超限报警', risk: '重大风险', event: 'Ⅰ 红色·紧急' },
+
+    { item: '火灾', alarm: '火警信号', risk: '重大风险', event: 'Ⅰ 红色·紧急' },
+
+    { item: '浸润线', alarm: '浸润线异常偏高报警', risk: '重大风险', event: 'Ⅰ 红色·紧急' },
+
+    { item: '水位', alarm: '水位超警戒报警', risk: '重大风险', event: 'Ⅰ 红色·紧急' },
+
+    { item: '干滩', alarm: '干滩长度不足报警', risk: '重大风险', event: 'Ⅰ 红色·紧急' },
+
+    { item: '雨量', alarm: '雨量超限报警', risk: '重大风险', event: 'Ⅰ 红色·紧急' },
+
+    /* 中级报警 → Ⅱ 黄色·一般（对应较大风险部位） */
+
+    { item: '液位', alarm: '高液位报警', risk: '较大风险', event: 'Ⅱ 黄色·一般' },
+
+    { item: '温度', alarm: '超温报警', risk: '较大风险', event: 'Ⅱ 黄色·一般' },
+
+    { item: '压力', alarm: '超压报警', risk: '较大风险', event: 'Ⅱ 黄色·一般' },
+
+    { item: '可燃气体浓度', alarm: '一级报警', risk: '较大风险', event: 'Ⅱ 黄色·一般' },
+
+    { item: '有毒气体浓度', alarm: '一级报警', risk: '较大风险', event: 'Ⅱ 黄色·一般' },
+
+    { item: '气体浓度', alarm: '一级报警', risk: '较大风险', event: 'Ⅱ 黄色·一般' },
+
+    { item: '地表沉降', alarm: '位移超限报警', risk: '较大风险', event: 'Ⅱ 黄色·一般' },
+
+    { item: '地表沉降', alarm: '传感器故障/离线', risk: '较大风险', event: 'Ⅱ 黄色·一般' },
+
+    { item: '位移', alarm: '位移超限报警', risk: '较大风险', event: 'Ⅱ 黄色·一般' },
+
+    { item: '水压', alarm: '水压不足', risk: '较大风险', event: 'Ⅱ 黄色·一般' },
+
+    /* 常规报警 → Ⅲ 蓝色·提示（对应一般/低风险部位） */
+
+    { item: '液位', alarm: '低液位报警', risk: '一般风险', event: 'Ⅲ 蓝色·提示' },
+
+    { item: '液位', alarm: '超低液位报警', risk: '低风险', event: 'Ⅲ 蓝色·提示' },
+
+    { item: '温度', alarm: '温度过低报警', risk: '一般风险', event: 'Ⅲ 蓝色·提示' },
+
+    { item: '压力', alarm: '欠压报警', risk: '低风险', event: 'Ⅲ 蓝色·提示' },
+
+    { item: '可燃气体浓度', alarm: '二级报警', risk: '一般风险', event: 'Ⅲ 蓝色·提示' },
+
+    { item: '有毒气体浓度', alarm: '二级报警', risk: '低风险', event: 'Ⅲ 蓝色·提示' },
+
+    { item: '气体浓度', alarm: '二级报警', risk: '一般风险', event: 'Ⅲ 蓝色·提示' }
+
+  ];
+
+  var RULE_KEY = 'hf-gongmao-rule-events-v4';
+
+  var monitors = MONITOR_LIST;
+
+  var rules = loadArr(RULE_KEY, RULE_SEED);
+
+
+
+  function loadArr(key, seed) {
+
+    try {
+
+      var raw = localStorage.getItem(key);
+
+      if (raw) {
+
+        var arr = JSON.parse(raw);
+
+        if (Object.prototype.toString.call(arr) === '[object Array]') return arr;
+
+      }
+
+    } catch (e) {}
+
+    return seed.slice();
+
+  }
+
+  function saveArr(key, arr) {
+
+    try { localStorage.setItem(key, JSON.stringify(arr)); } catch (e) {}
+
+  }
+
+  var migratedRuleLevels = false;
+
+  rules.forEach(function (rule) {
+
+    if (rule.event === "Ⅲ 黄色·一般") { rule.event = "Ⅱ 黄色·一般"; migratedRuleLevels = true; }
+
+    else if (rule.event === "Ⅳ 蓝色·提示") { rule.event = "Ⅲ 蓝色·提示"; migratedRuleLevels = true; }
+
+  });
+
+  if (migratedRuleLevels) saveArr(RULE_KEY, rules);
+
+  function esc(s) {
+
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+  }
+
+
+
+  /* ===== Tab 切换 ===== */
+
+  var tabMonitor = document.getElementById('tabMonitor');
+
+  var tabRule = document.getElementById('tabRule');
+
+  var panelMonitor = document.getElementById('panelMonitor');
+
+  var panelRule = document.getElementById('panelRule');
+
+  function switchTab(which) {
+
+    var isMonitor = which === 'monitor';
+
+    tabMonitor.classList.toggle('active', isMonitor);
+
+    tabRule.classList.toggle('active', !isMonitor);
+
+    panelMonitor.classList.toggle('panel-hidden', !isMonitor);
+
+    panelRule.classList.toggle('panel-hidden', isMonitor);
+
+  }
+
+  tabMonitor.addEventListener('click', function () { switchTab('monitor'); });
+
+  tabRule.addEventListener('click', function () { switchTab('rule'); });
+
+
+
+  /* ===== 监测项和报警配置（只读列表） ===== */
+
+  var monitorBody = document.getElementById('monitorBody');
+
+  var monitorCount = document.getElementById('monitorCount');
+
+
+
+  function renderMonitors() {
+
+    monitorCount.textContent = String(monitors.length);
+
+    var html = '';
+
+    monitors.forEach(function (d, i) {
+
+      var alarms;
+
+      if (d.alarms && d.alarms.length) {
+
+        alarms = d.alarms.map(function (a) {
+
+          return '<span class="tag tag-neutral">' + esc(a) + '</span>';
+
+        }).join('');
+
+      } else {
+
+        alarms = '<span class="tag tag-neutral tag-dim">—</span>';
+
+      }
+
+      html += '<tr>'
+
+        + '<td>' + (i + 1) + '</td>'
+
+        + '<td>' + esc(d.item) + '</td>'
+
+        + '<td class="alarm-cell">' + alarms + '</td>'
+
+        + '</tr>';
+
+    });
+
+    monitorBody.innerHTML = html;
+
+  }
+
+
+
+  /* ===== 风险预警等级配置 ===== */
+
+  var ruleBody = document.getElementById('ruleBody');
+
+  var ruleCount = document.getElementById('ruleCount');
+
+  var ruleModal = document.getElementById('ruleModal');
+
+  var ruleFormTitle = document.getElementById('ruleFormTitle');
+
+  var fRItem = document.getElementById('fRItem');
+
+  var fRAlarm = document.getElementById('fRAlarm');
+
+  var fRRisk = document.getElementById('fRRisk');
+
+  var fREvent = document.getElementById('fREvent');
+
+  (function publishConfiguredAlertLevels() {
+
+    try {
+
+      var levels = Array.prototype.slice.call(fREvent.options).filter(function (option) { return !!option.value; }).map(function (option) {
+
+        var className = EVENT_CLS[option.value] || 'tag-mid';
+
+        var probe = document.createElement('span');
+
+        probe.className = 'tag ' + className;
+
+        probe.style.cssText = 'position:fixed;left:-9999px;visibility:hidden';
+
+        document.body.appendChild(probe);
+
+        var style = window.getComputedStyle(probe);
+
+        var result = { name: option.value.trim(), className: className, color: style.color, background: style.backgroundColor };
+
+        probe.remove();
+
+        return result;
+
+      });
+
+      if (levels.length) localStorage.setItem('hf-gongmao-alert-level-display-v1', JSON.stringify(levels));
+
+    } catch (error) {}
+
+  })();
+
+  var ruleEditIndex = null;
+
+
+
+  function renderRules() {
+
+    ruleCount.textContent = String(rules.length);
+
+    if (!rules.length) {
+
+      ruleBody.innerHTML = '<tr class="empty-row"><td colspan="6">暂无规则，请点击「新增规则」进行添加</td></tr>';
+
+      return;
+
+    }
+
+    var html = '';
+
+    rules.forEach(function (d, i) {
+
+      html += '<tr>'
+
+        + '<td>' + (i + 1) + '</td>'
+
+        + '<td>' + esc(d.item) + '</td>'
+
+        + '<td>' + esc(d.alarm) + '</td>'
+
+        + '<td>' + esc(d.risk) + '</td>'
+
+        + '<td><span class="tag ' + (EVENT_CLS[d.event] || 'tag-mid') + '">' + esc(d.event) + '</span></td>'
+
+        + '<td><button type="button" class="op-btn op-edit" data-i="' + i + '">编辑</button>'
+
+        + '<button type="button" class="op-btn op-del" data-i="' + i + '">删除</button></td>'
+
+        + '</tr>';
+
+    });
+
+    ruleBody.innerHTML = html;
+
+  }
+
+
+
+  function hideRErr() {
+
+    var errs = ruleModal.querySelectorAll('.form-err');
+
+    for (var i = 0; i < errs.length; i++) errs[i].classList.remove('show');
+
+  }
+
+  function fillRuleItemOptions() {
+
+    var html = '<option value="">请选择监测项</option>';
+
+    MONITOR_ITEMS.forEach(function (it) {
+
+      html += '<option value="' + esc(it) + '">' + esc(it) + '</option>';
+
+    });
+
+    fRItem.innerHTML = html;
+
+  }
+
+  function fillRuleAlarmOptions(item, selected) {
+
+    var list = (item && MONITOR_ALARMS[item]) ? MONITOR_ALARMS[item] : [];
+
+    var html = '<option value="">' + (item ? '请选择监测报警' : '请先选择监测项') + '</option>';
+
+    list.forEach(function (a) {
+
+      html += '<option value="' + esc(a) + '"' + (a === selected ? ' selected' : '') + '>' + esc(a) + '</option>';
+
+    });
+
+    fRAlarm.innerHTML = html;
+
+  }
+
+  fRItem.addEventListener('change', function () {
+
+    document.getElementById('errRItem').classList.remove('show');
+
+    fillRuleAlarmOptions(fRItem.value, '');
+
+    document.getElementById('errRAlarm').classList.remove('show');
+
+  });
+
+  fRAlarm.addEventListener('change', function () {
+
+    document.getElementById('errRAlarm').classList.remove('show');
+
+  });
+
+  function openRuleForm(index) {
+
+    ruleEditIndex = (index === undefined || index === null) ? null : index;
+
+    hideRErr();
+
+    fillRuleItemOptions();
+
+    fRItem.value = '';
+
+    fRAlarm.value = '';
+
+    fRRisk.value = '';
+
+    fREvent.value = '';
+
+    ruleFormTitle.textContent = (ruleEditIndex === null) ? '新增规则' : '编辑规则';
+
+    if (ruleEditIndex !== null) {
+
+      var d = rules[ruleEditIndex];
+
+      fRItem.value = d.item;
+
+      fillRuleAlarmOptions(d.item, d.alarm);
+
+      fRRisk.value = d.risk;
+
+      fREvent.value = d.event;
+
+    } else {
+
+      fillRuleAlarmOptions('', '');
+
+    }
+
+    ruleModal.classList.add('show');
+
+  }
+
+  function closeRuleForm() { ruleModal.classList.remove('show'); }
+
+
+
+  function saveRuleForm() {
+
+    var item = fRItem.value;
+
+    var alarm = fRAlarm.value;
+
+    var risk = fRRisk.value;
+
+    var event = fREvent.value;
+
+    var ok = true;
+
+    hideRErr();
+
+    if (!item) { document.getElementById('errRItem').classList.add('show'); ok = false; }
+
+    if (!alarm) { document.getElementById('errRAlarm').classList.add('show'); ok = false; }
+
+    if (!risk) { document.getElementById('errRRisk').classList.add('show'); ok = false; }
+
+    if (!event) { document.getElementById('errREvent').classList.add('show'); ok = false; }
+
+    if (!ok) return;
+
+    var dup = rules.some(function (d, i) {
+
+      return i !== ruleEditIndex && d.item === item && d.alarm === alarm && d.risk === risk;
+
+    });
+
+    if (dup) {
+
+      document.getElementById('errRItem').textContent = '相同监测项、监测报警与风险等级的规则已存在';
+
+      document.getElementById('errRItem').classList.add('show');
+
+      return;
+
+    }
+
+    if (ruleEditIndex === null) {
+
+      rules.push({ item: item, alarm: alarm, risk: risk, event: event });
+
+      window.showToast('新增成功');
+
+    } else {
+
+      rules[ruleEditIndex] = { item: item, alarm: alarm, risk: risk, event: event };
+
+      window.showToast('保存成功');
+
+    }
+
+    saveArr(RULE_KEY, rules);
+
+    renderRules();
+
+    closeRuleForm();
+
+  }
+
+
+
+  document.getElementById('addRuleBtn').addEventListener('click', function () { openRuleForm(null); });
+
+  document.getElementById('ruleClose').addEventListener('click', closeRuleForm);
+
+  document.getElementById('ruleCancel').addEventListener('click', closeRuleForm);
+
+  document.getElementById('ruleSave').addEventListener('click', saveRuleForm);
+
+
+
+  ruleBody.addEventListener('click', function (e) {
+
+    var btn = e.target.closest('.op-btn');
+
+    if (!btn) return;
+
+    var i = parseInt(btn.getAttribute('data-i'), 10);
+
+    if (btn.classList.contains('op-edit')) openRuleForm(i);
+
+    if (btn.classList.contains('op-del')) {
+
+      window.confirmRemove('确定要删除该风险预警等级规则吗？删除后不可恢复。', function () {
+
+        rules.splice(i, 1);
+
+        saveArr(RULE_KEY, rules);
+
+        renderRules();
+
+        window.showToast('删除成功');
+
+      });
+
+    }
+
+  });
+
+
+
+  renderMonitors();
+
+  renderRules();
+
+})();
+
+
+
+/* ===== AI监测事件等级：Tab 与数据逻辑 ===== */
+
+(function () {
+
+  'use strict';
+
+
+
+  var EVENT_CLS = { 'Ⅰ 红色·紧急': 'tag-major', 'Ⅲ 黄色·一般': 'tag-mid', 'Ⅳ 蓝色·提示': 'tag-blue' };
+
+
+
+  /* AI 算法报警事件按监测主题归组（2026-09-23 用户提供算法全集，去重 21 个） */
+
+  var AI_MONITOR_LIST = [
+
+    { item: '区域入侵监测', alarms: ['人员入侵', '违规进入', '人员违规靠近', '通道占用', '疏散通道占用', '电动车识别'] },
+
+    { item: '人员防护监测', alarms: ['未佩戴安全帽', '未穿反光衣'] },
+
+    { item: '危险作业监测', alarms: ['动火作业', '高空作业不规范', '无防护进入/下井', '违规作业', '违规操作识别', '设备异常联动'] },
+
+    { item: '人员行为监测', alarms: ['异常状态识别', '人员抽烟', '人员聚集', '人员离岗', '睡岗', '人员滞留识别'] },
+
+    { item: '烟火监测', alarms: ['烟火报警'] }
+
+  ];
+
+  var AI_MONITOR_ITEMS = [];
+
+  var AI_MONITOR_ALARMS = {};
+
+  AI_MONITOR_LIST.forEach(function (d) {
+
+    if (AI_MONITOR_ITEMS.indexOf(d.item) === -1) AI_MONITOR_ITEMS.push(d.item);
+
+    if (!AI_MONITOR_ALARMS[d.item]) AI_MONITOR_ALARMS[d.item] = [];
+
+    (d.alarms || []).forEach(function (a) {
+
+      if (AI_MONITOR_ALARMS[d.item].indexOf(a) === -1) AI_MONITOR_ALARMS[d.item].push(a);
+
+    });
+
+  });
+
+
+
+  var AI_RULE_SEED = [
+
+    /* 高危算法事件 → Ⅰ 红色·紧急（对应重大风险部位） */
+
+    { item: '区域入侵监测', alarm: '人员入侵', risk: '重大风险', event: 'Ⅰ 红色·紧急' },
+
+    { item: '危险作业监测', alarm: '动火作业', risk: '重大风险', event: 'Ⅰ 红色·紧急' },
+
+    { item: '危险作业监测', alarm: '无防护进入/下井', risk: '重大风险', event: 'Ⅰ 红色·紧急' },
+
+    { item: '危险作业监测', alarm: '设备异常联动', risk: '重大风险', event: 'Ⅰ 红色·紧急' },
+
+    { item: '人员行为监测', alarm: '异常状态识别', risk: '重大风险', event: 'Ⅰ 红色·紧急' },
+
+    { item: '烟火监测', alarm: '烟火报警', risk: '重大风险', event: 'Ⅰ 红色·紧急' },
+
+    /* 中级算法事件 → Ⅲ 黄色·一般（对应较大风险部位） */
+
+    { item: '区域入侵监测', alarm: '违规进入', risk: '较大风险', event: 'Ⅲ 黄色·一般' },
+
+    { item: '区域入侵监测', alarm: '人员违规靠近', risk: '较大风险', event: 'Ⅲ 黄色·一般' },
+
+    { item: '区域入侵监测', alarm: '通道占用', risk: '较大风险', event: 'Ⅲ 黄色·一般' },
+
+    { item: '区域入侵监测', alarm: '疏散通道占用', risk: '较大风险', event: 'Ⅲ 黄色·一般' },
+
+    { item: '人员防护监测', alarm: '未佩戴安全帽', risk: '较大风险', event: 'Ⅲ 黄色·一般' },
+
+    { item: '人员防护监测', alarm: '未穿反光衣', risk: '较大风险', event: 'Ⅲ 黄色·一般' },
+
+    { item: '危险作业监测', alarm: '高空作业不规范', risk: '较大风险', event: 'Ⅲ 黄色·一般' },
+
+    { item: '危险作业监测', alarm: '违规作业', risk: '较大风险', event: 'Ⅲ 黄色·一般' },
+
+    { item: '危险作业监测', alarm: '违规操作识别', risk: '较大风险', event: 'Ⅲ 黄色·一般' },
+
+    { item: '人员行为监测', alarm: '人员聚集', risk: '较大风险', event: 'Ⅲ 黄色·一般' },
+
+    { item: '人员行为监测', alarm: '人员离岗', risk: '较大风险', event: 'Ⅲ 黄色·一般' },
+
+    { item: '人员行为监测', alarm: '睡岗', risk: '较大风险', event: 'Ⅲ 黄色·一般' },
+
+    { item: '人员行为监测', alarm: '人员滞留识别', risk: '较大风险', event: 'Ⅲ 黄色·一般' },
+
+    /* 常规算法事件 → Ⅳ 蓝色·提示（对应一般/低风险部位） */
+
+    { item: '区域入侵监测', alarm: '电动车识别', risk: '一般风险', event: 'Ⅳ 蓝色·提示' },
+
+    { item: '人员行为监测', alarm: '人员抽烟', risk: '低风险', event: 'Ⅳ 蓝色·提示' }
+
+  ];
+
+  var AI_RULE_KEY = 'hf-gongmao-ai-rules-v2';
+
+
+
+  var aiMonitors = AI_MONITOR_LIST;
+
+  var aiRules = loadArr(AI_RULE_KEY, AI_RULE_SEED);
+
+
+
+  function loadArr(key, seed) {
+
+    try {
+
+      var raw = localStorage.getItem(key);
+
+      if (raw) {
+
+        var arr = JSON.parse(raw);
+
+        if (Object.prototype.toString.call(arr) === '[object Array]') return arr;
+
+      }
+
+    } catch (e) {}
+
+    return seed.slice();
+
+  }
+
+  function saveArr(key, arr) {
+
+    try { localStorage.setItem(key, JSON.stringify(arr)); } catch (e) {}
+
+  }
+
+  function esc(s) {
+
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+  }
+
+
+
+  /* ===== Tab 切换 ===== */
+
+  var tabAIMonitor = document.getElementById('tabAIMonitor');
+
+  var tabAIRule = document.getElementById('tabAIRule');
+
+  var panelAIMonitor = document.getElementById('panelAIMonitor');
+
+  var panelAIRule = document.getElementById('panelAIRule');
+
+  function switchTab(which) {
+
+    var isMonitor = which === 'monitor';
+
+    tabAIMonitor.classList.toggle('active', isMonitor);
+
+    tabAIRule.classList.toggle('active', !isMonitor);
+
+    panelAIMonitor.classList.toggle('panel-hidden', !isMonitor);
+
+    panelAIRule.classList.toggle('panel-hidden', isMonitor);
+
+  }
+
+  tabAIMonitor.addEventListener('click', function () { switchTab('monitor'); });
+
+  tabAIRule.addEventListener('click', function () { switchTab('rule'); });
+
+
+
+  /* ===== AI监测项和报警配置（只读列表） ===== */
+
+  var aiMonitorBody = document.getElementById('aiMonitorBody');
+
+  var aiMonitorCount = document.getElementById('aiMonitorCount');
+
+
+
+  function renderAIMonitors() {
+
+    aiMonitorCount.textContent = String(aiMonitors.length);
+
+    var html = '';
+
+    aiMonitors.forEach(function (d, i) {
+
+      var alarms;
+
+      if (d.alarms && d.alarms.length) {
+
+        alarms = d.alarms.map(function (a) {
+
+          return '<span class="tag tag-neutral">' + esc(a) + '</span>';
+
+        }).join('');
+
+      } else {
+
+        alarms = '<span class="tag tag-neutral tag-dim">—</span>';
+
+      }
+
+      html += '<tr>'
+
+        + '<td>' + (i + 1) + '</td>'
+
+        + '<td>' + esc(d.item) + '</td>'
+
+        + '<td class="alarm-cell">' + alarms + '</td>'
+
+        + '</tr>';
+
+    });
+
+    aiMonitorBody.innerHTML = html;
+
+  }
+
+
+
+  /* ===== AI风险预警等级配置 ===== */
+
+  var aiRuleBody = document.getElementById('aiRuleBody');
+
+  var aiRuleCount = document.getElementById('aiRuleCount');
+
+  var aiRuleModal = document.getElementById('aiRuleModal');
+
+  var aiRuleFormTitle = document.getElementById('aiRuleFormTitle');
+
+  var fAIRItem = document.getElementById('fAIRItem');
+
+  var fAIRAlarm = document.getElementById('fAIRAlarm');
+
+  var fAIRRisk = document.getElementById('fAIRRisk');
+
+  var fAIREvent = document.getElementById('fAIREvent');
+
+  var aiRuleEditIndex = null;
+
+
+
+  function renderAIRules() {
+
+    aiRuleCount.textContent = String(aiRules.length);
+
+    if (!aiRules.length) {
+
+      aiRuleBody.innerHTML = '<tr class="empty-row"><td colspan="6">暂无规则，请点击「新增规则」进行添加</td></tr>';
+
+      return;
+
+    }
+
+    var html = '';
+
+    aiRules.forEach(function (d, i) {
+
+      html += '<tr>'
+
+        + '<td>' + (i + 1) + '</td>'
+
+        + '<td>' + esc(d.item) + '</td>'
+
+        + '<td>' + esc(d.alarm) + '</td>'
+
+        + '<td>' + esc(d.risk) + '</td>'
+
+        + '<td><span class="tag ' + (EVENT_CLS[d.event] || 'tag-mid') + '">' + esc(d.event) + '</span></td>'
+
+        + '<td><button type="button" class="op-btn op-edit" data-i="' + i + '">编辑</button>'
+
+        + '<button type="button" class="op-btn op-del" data-i="' + i + '">删除</button></td>'
+
+        + '</tr>';
+
+    });
+
+    aiRuleBody.innerHTML = html;
+
+  }
+
+
+
+  function hideAIRErr() {
+
+    var errs = aiRuleModal.querySelectorAll('.form-err');
+
+    for (var i = 0; i < errs.length; i++) errs[i].classList.remove('show');
+
+  }
+
+  function fillAIRuleItemOptions() {
+
+    var html = '<option value="">请选择监测项</option>';
+
+    AI_MONITOR_ITEMS.forEach(function (it) {
+
+      html += '<option value="' + esc(it) + '">' + esc(it) + '</option>';
+
+    });
+
+    fAIRItem.innerHTML = html;
+
+  }
+
+  function fillAIRuleAlarmOptions(item, selected) {
+
+    var list = (item && AI_MONITOR_ALARMS[item]) ? AI_MONITOR_ALARMS[item] : [];
+
+    var html = '<option value="">' + (item ? '请选择监测报警' : '请先选择监测项') + '</option>';
+
+    list.forEach(function (a) {
+
+      html += '<option value="' + esc(a) + '"' + (a === selected ? ' selected' : '') + '>' + esc(a) + '</option>';
+
+    });
+
+    fAIRAlarm.innerHTML = html;
+
+  }
+
+  fAIRItem.addEventListener('change', function () {
+
+    document.getElementById('errAIRItem').classList.remove('show');
+
+    fillAIRuleAlarmOptions(fAIRItem.value, '');
+
+    document.getElementById('errAIRAlarm').classList.remove('show');
+
+  });
+
+  fAIRAlarm.addEventListener('change', function () {
+
+    document.getElementById('errAIRAlarm').classList.remove('show');
+
+  });
+
+  function openAIRuleForm(index) {
+
+    aiRuleEditIndex = (index === undefined || index === null) ? null : index;
+
+    hideAIRErr();
+
+    fillAIRuleItemOptions();
+
+    fAIRItem.value = '';
+
+    fAIRAlarm.value = '';
+
+    fAIRRisk.value = '';
+
+    fAIREvent.value = '';
+
+    aiRuleFormTitle.textContent = (aiRuleEditIndex === null) ? '新增规则' : '编辑规则';
+
+    if (aiRuleEditIndex !== null) {
+
+      var d = aiRules[aiRuleEditIndex];
+
+      fAIRItem.value = d.item;
+
+      fillAIRuleAlarmOptions(d.item, d.alarm);
+
+      fAIRRisk.value = d.risk;
+
+      fAIREvent.value = d.event;
+
+    } else {
+
+      fillAIRuleAlarmOptions('', '');
+
+    }
+
+    aiRuleModal.classList.add('show');
+
+  }
+
+  function closeAIRuleForm() { aiRuleModal.classList.remove('show'); }
+
+
+
+  function saveAIRuleForm() {
+
+    var item = fAIRItem.value;
+
+    var alarm = fAIRAlarm.value;
+
+    var risk = fAIRRisk.value;
+
+    var event = fAIREvent.value;
+
+    var ok = true;
+
+    hideAIRErr();
+
+    if (!item) { document.getElementById('errAIRItem').classList.add('show'); ok = false; }
+
+    if (!alarm) { document.getElementById('errAIRAlarm').classList.add('show'); ok = false; }
+
+    if (!risk) { document.getElementById('errAIRRisk').classList.add('show'); ok = false; }
+
+    if (!event) { document.getElementById('errAIREvent').classList.add('show'); ok = false; }
+
+    if (!ok) return;
+
+    var dup = aiRules.some(function (d, i) {
+
+      return i !== aiRuleEditIndex && d.item === item && d.alarm === alarm && d.risk === risk;
+
+    });
+
+    if (dup) {
+
+      document.getElementById('errAIRItem').textContent = '相同监测项、监测报警与风险等级的规则已存在';
+
+      document.getElementById('errAIRItem').classList.add('show');
+
+      return;
+
+    }
+
+    if (aiRuleEditIndex === null) {
+
+      aiRules.push({ item: item, alarm: alarm, risk: risk, event: event });
+
+      window.showToast('新增成功');
+
+    } else {
+
+      aiRules[aiRuleEditIndex] = { item: item, alarm: alarm, risk: risk, event: event };
+
+      window.showToast('保存成功');
+
+    }
+
+    saveArr(AI_RULE_KEY, aiRules);
+
+    renderAIRules();
+
+    closeAIRuleForm();
+
+  }
+
+
+
+  document.getElementById('addAIRuleBtn').addEventListener('click', function () { openAIRuleForm(null); });
+
+  document.getElementById('aiRuleClose').addEventListener('click', closeAIRuleForm);
+
+  document.getElementById('aiRuleCancel').addEventListener('click', closeAIRuleForm);
+
+  document.getElementById('aiRuleSave').addEventListener('click', saveAIRuleForm);
+
+
+
+  aiRuleBody.addEventListener('click', function (e) {
+
+    var btn = e.target.closest('.op-btn');
+
+    if (!btn) return;
+
+    var i = parseInt(btn.getAttribute('data-i'), 10);
+
+    if (btn.classList.contains('op-edit')) openAIRuleForm(i);
+
+    if (btn.classList.contains('op-del')) {
+
+      window.confirmRemove('确定要删除该AI风险预警等级规则吗？删除后不可恢复。', function () {
+
+        aiRules.splice(i, 1);
+
+        saveArr(AI_RULE_KEY, aiRules);
+
+        renderAIRules();
+
+        window.showToast('删除成功');
+
+      });
+
+    }
+
+  });
+
+
+
+  renderAIMonitors();
+
+  renderAIRules();
+
+})();
+
+
+
+/* ===== 分级预警处置配置：处置流程与岗位配置 ===== */
+
+(function () {
+
+  'use strict';
+
+
+
+  var LEVEL_CLS = { 'Ⅰ 红色·紧急': 'tag-major', 'Ⅲ 黄色·一般': 'tag-mid', 'Ⅳ 蓝色·提示': 'tag-blue' };
+
+
+
+  /* 处置岗位库（自定义，供流程配置引用） */
+
+  var ROLE_SEED = [
+
+    { name: '市局科室监管人员', side: '监管端-市局' },
+
+    { name: '市局科室负责人', side: '监管端-市局' },
+
+    { name: '市局分管局长', side: '监管端-市局' },
+
+    { name: '市局局长', side: '监管端-市局' },
+
+    { name: '县（区）局科室负责人', side: '监管端-县（区）局' },
+
+    { name: '县（区）局相关监管人员', side: '监管端-县（区）局' },
+
+    { name: '县（区）局分管局长', side: '监管端-县（区）局' },
+
+    { name: '县（区）局局长', side: '监管端-县（区）局' },
+
+    { name: '企业值班人员（安全管理人员）', side: '企业端' },
+
+    { name: '企业安全副处长', side: '企业端' },
+
+    { name: '企业安全处长', side: '企业端' },
+
+    { name: '企业安全副总', side: '企业端' },
+
+    { name: '企业负责人', side: '企业端' },
+
+    { name: '企业总经理', side: '企业端' }
+
+  ];
+
+
+
+  /* 三档处置流程（时限与岗位均可自定义；参照分级推送机制图 0/5/15/30 分钟阶梯） */
+
+  var FLOW_SEED = [
+
+    {
+
+      level: 'Ⅰ 红色·紧急', name: '高风险事件处置流程',
+
+      desc: '已发生事件：温度、液位、压力高报，火警，有毒有害气体泄漏等',
+
+      noticeMin: 2, verifyMin: 5, pushApp: true, pushSms: true, superviseMin: null,
+
+      steps: [
+
+        { nodeMin: 0, gov: ['市局科室监管人员', '县（区）局分管局长'], ent: ['企业安全副处长'] },
+
+        { nodeMin: 5, gov: ['市局科室负责人', '县（区）局局长'], ent: ['企业安全处长'] },
+
+        { nodeMin: 15, gov: ['市局分管局长'], ent: ['企业安全副总'] },
+
+        { nodeMin: 30, gov: ['市局局长'], ent: ['企业总经理'] }
+
+      ]
+
+    },
+
+    {
+
+      level: 'Ⅲ 黄色·一般', name: '较大风险事件处置流程',
+
+      desc: '温度、液位、压力低报',
+
+      noticeMin: 5, verifyMin: 15, pushApp: true, pushSms: true, superviseMin: null,
+
+      steps: [
+
+        { nodeMin: 0, gov: ['县（区）局科室负责人', '县（区）局相关监管人员'], ent: ['企业安全副处长'] },
+
+        { nodeMin: 5, gov: ['市局科室监管人员', '县（区）局分管局长'], ent: ['企业安全处长'] },
+
+        { nodeMin: 15, gov: ['市局科室负责人', '县（区）局局长'], ent: ['企业安全副总'] },
+
+        { nodeMin: 30, gov: ['市局分管局长'], ent: ['企业总经理'] }
+
+      ]
+
+    },
+
+    {
+
+      level: 'Ⅳ 蓝色·提示', name: '一般风险事件处置流程',
+
+      desc: '界定待确认；系统自动推送提醒，超过时限未整改则通知督办',
+
+      noticeMin: null, verifyMin: null, pushApp: true, pushSms: false, superviseMin: null,
+
+      steps: []
+
+    }
+
+  ];
+
+
+
+  var ROLE_KEY = 'hf-gongmao-dispatch-roles-v1';
+
+  var FLOW_KEY = 'hf-gongmao-dispatch-flows-v1';
+
+  var roles = loadArr(ROLE_KEY, ROLE_SEED);
+
+  var flows = loadArr(FLOW_KEY, FLOW_SEED);
+
+
+
+  function loadArr(key, seed) {
+
+    try {
+
+      var raw = localStorage.getItem(key);
+
+      if (raw) {
+
+        var arr = JSON.parse(raw);
+
+        if (Object.prototype.toString.call(arr) === '[object Array]') return arr;
+
+      }
+
+    } catch (e) {}
+
+    return seed.slice();
+
+  }
+
+  function saveArr(key, arr) {
+
+    try { localStorage.setItem(key, JSON.stringify(arr)); } catch (e) {}
+
+  }
+
+  function esc(s) {
+
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+  }
+
+
+
+  /* ===== Tab 切换 ===== */
+
+  var tabFlow = document.getElementById('tabFlow');
+
+  var tabRole = document.getElementById('tabRole');
+
+  var tabViz = document.getElementById('tabViz');
+
+  var panelFlow = document.getElementById('panelFlow');
+
+  var panelRole = document.getElementById('panelRole');
+
+  var panelViz = document.getElementById('panelViz');
+  var tabTemplate = document.getElementById('tabTemplate');
+  var panelTemplate = document.getElementById('panelTemplate');
+
+  function switchTab(which) {
+
+    var isFlow = which === 'flow';
+
+    var isRole = which === 'role';
+
+    tabFlow.classList.toggle('active', isFlow);
+
+    tabRole.classList.toggle('active', isRole);
+
+    tabViz.classList.toggle('active', which === 'viz');
+    tabTemplate.classList.toggle('active', which === 'template');
+
+    panelFlow.classList.toggle('panel-hidden', !isFlow);
+
+    panelRole.classList.toggle('panel-hidden', !isRole);
+
+    panelViz.classList.toggle('panel-hidden', which !== 'viz');
+    panelTemplate.classList.toggle('panel-hidden', which !== 'template');
+
+  }
+
+  tabFlow.addEventListener('click', function () { switchTab('flow'); });
+
+  tabRole.addEventListener('click', function () { switchTab('role'); });
+
+  tabViz.addEventListener('click', function () { switchTab('viz'); });
+  tabTemplate.addEventListener('click', function () { switchTab('template'); });
+
+  var NOTICE_KEY = 'hf-gongmao-notice-templates-v1';
+
+  var NOTICE_SEED_KEY = 'hf-gongmao-notice-templates-seeded-v2';
+
+  var NOTICE_SEED = [
+
+    {
+
+      id: 'notice-seed-urgent',
+
+      level: '紧急',
+
+      content: '【{预警等级}预警】{企业名称}于{报警时间}发生{报警内容}，请{通知对象}立即核查，并在{处置时限}内反馈处置结果。',
+
+      roleNames: ['市局科室监管人员', '市局科室负责人'],
+
+      methods: ['短信通知'],
+
+      updatedAt: '2026-09-26 09:30'
+
+    },
+
+    {
+
+      id: 'notice-seed-normal',
+
+      level: '一般',
+
+      content: '【{预警等级}预警】{企业名称}监测到{报警内容}，报警时间为{报警时间}。请{通知对象}在{处置时限}内完成现场核实与处置。',
+
+      roleNames: ['县（区）局相关监管人员', '企业安全处长'],
+
+      methods: ['短信通知'],
+
+      updatedAt: '2026-09-26 09:20'
+
+    },
+
+    {
+
+      id: 'notice-seed-tip',
+
+      level: '提示',
+
+      content: '【{预警等级}预警】{企业名称}于{报警时间}出现{报警内容}，请{通知对象}及时关注并按要求完成核查。',
+
+      roleNames: ['企业值班人员（安全管理人员）'],
+
+      methods: ['短信通知'],
+
+      updatedAt: '2026-09-26 09:10'
+
+    }
+
+  ];
+
+  function loadNoticeTemplates() {
+
+    try {
+
+      var parsed = JSON.parse(localStorage.getItem(NOTICE_KEY) || '[]');
+
+      if (Object.prototype.toString.call(parsed) === '[object Array]' && parsed.length) {
+
+        localStorage.setItem(NOTICE_SEED_KEY, '1');
+
+        return parsed;
+
+      }
+
+      if (parsed && typeof parsed === 'object') {
+
+        var legacy = Object.keys(parsed).filter(function (level) { return parsed[level]; }).map(function (level, index) {
+
+          return { id: 'notice-legacy-' + index, level: level, content: parsed[level], roleNames: [], methods: ['短信通知'], updatedAt: '历史配置' };
+
+        });
+
+        if (legacy.length) {
+
+          localStorage.setItem(NOTICE_SEED_KEY, '1');
+
+          return legacy;
+
+        }
+
+      }
+
+    } catch (e) {}
+
+    if (localStorage.getItem(NOTICE_SEED_KEY) !== '1') {
+
+      var seeded = NOTICE_SEED.map(function (item) { return Object.assign({}, item, { roleNames: item.roleNames.slice(), methods: item.methods.slice() }); });
+
+      localStorage.setItem(NOTICE_SEED_KEY, '1');
+
+      localStorage.setItem(NOTICE_KEY, JSON.stringify(seeded));
+
+      return seeded;
+
+    }
+
+    return [];
+
+  }
+
+  var noticeTemplates = loadNoticeTemplates();
+
+  var noticeEditIndex = null;
+
+  var noticeTemplateBody = document.getElementById('noticeTemplateBody');
+
+  var noticeTemplateCount = document.getElementById('noticeTemplateCount');
+
+  var noticeModal = document.getElementById('noticeModal');
+
+  var noticeFormTitle = document.getElementById('noticeFormTitle');
+
+  var fNLevel = document.getElementById('fNLevel');
+
+  var fNContent = document.getElementById('fNContent');
+
+  var noticeRoleOptions = document.getElementById('noticeRoleOptions');
+
+  var noticeCharCount = document.getElementById('noticeCharCount');
+
+  function saveNoticeTemplates() {
+
+    try { localStorage.setItem(NOTICE_KEY, JSON.stringify(noticeTemplates)); } catch (e) {}
+
+  }
+
+  function noticeLevelMeta(level) {
+
+    if (level === '紧急') return { label: 'Ⅰ级 · 红色紧急', cls: 'urgent' };
+
+    if (level === '一般') return { label: 'Ⅱ级 · 黄色一般', cls: 'normal' };
+
+    return { label: 'Ⅲ级 · 蓝色提示', cls: 'tip' };
+
+  }
+
+  function renderNoticeTemplates() {
+
+    noticeTemplateCount.textContent = String(noticeTemplates.length);
+
+    if (!noticeTemplates.length) {
+
+      noticeTemplateBody.innerHTML = '<tr class="empty-row"><td colspan="7">暂无通知模板，请点击「新建通知模板」进行配置</td></tr>';
+
+      return;
+
+    }
+
+    noticeTemplateBody.innerHTML = noticeTemplates.map(function (item, index) {
+
+      var meta = noticeLevelMeta(item.level);
+
+      var roleNames = item.roleNames || [];
+
+      var visibleRoles = roleNames.slice(0, 2).map(function (name) { return '<span class="notice-mini-tag">' + esc(name) + '</span>'; }).join('');
+
+      if (roleNames.length > 2) visibleRoles += '<span class="notice-mini-tag">+' + (roleNames.length - 2) + '</span>';
+
+      if (!visibleRoles) visibleRoles = '<span class="dim">未配置</span>';
+
+      var methods = (item.methods || []).map(function (method) {
+
+        return '<span class="notice-mini-tag channel ' + (method === '短信通知' ? 'sms' : '') + '">' + esc(method) + '</span>';
+
+      }).join('') || '<span class="dim">未配置</span>';
+
+      return '<tr><td>' + (index + 1) + '</td>'
+
+        + '<td><span class="notice-level ' + meta.cls + '">' + meta.label + '</span></td>'
+
+        + '<td class="notice-content-cell" title="' + esc(item.content) + '"><span>' + esc(item.content) + '</span></td>'
+
+        + '<td><div class="notice-tag-list">' + visibleRoles + '</div></td>'
+
+        + '<td><div class="notice-tag-list">' + methods + '</div></td>'
+
+        + '<td>' + esc(item.updatedAt || '—') + '</td>'
+
+        + '<td><button type="button" class="op-btn op-edit" data-notice-edit="' + index + '">编辑</button>'
+
+        + '<button type="button" class="op-btn op-del" data-notice-del="' + index + '">删除</button></td></tr>';
+
+    }).join('');
+
+  }
+
+  function selectedNoticeRoles() {
+
+    return Array.prototype.slice.call(noticeRoleOptions.querySelectorAll('input[name="noticeRole"]:checked')).map(function (input) { return input.value; });
+
+  }
+
+  function selectedNoticeMethods() {
+
+    return Array.prototype.slice.call(noticeModal.querySelectorAll('input[name="noticeMethod"]:checked')).map(function (input) { return input.value; });
+
+  }
+
+  function updateNoticeRoleCount() {
+
+    document.getElementById('noticeRoleCount').textContent = '已选择 ' + selectedNoticeRoles().length + ' 个岗位';
+
+  }
+
+  function renderNoticeRoleOptions(selectedNames) {
+
+    selectedNames = selectedNames || [];
+
+    var groups = {};
+
+    roles.forEach(function (role) {
+
+      var side = role.side || '其他岗位';
+
+      if (!groups[side]) groups[side] = [];
+
+      groups[side].push(role.name);
+
+    });
+
+    var knownNames = roles.map(function (role) { return role.name; });
+
+    var historical = selectedNames.filter(function (name) { return knownNames.indexOf(name) < 0; });
+
+    if (historical.length) groups['历史配置'] = historical;
+
+    var sides = Object.keys(groups);
+
+    if (!sides.length) {
+
+      noticeRoleOptions.innerHTML = '<div class="notice-role-empty">暂无可选岗位，请先在「处置岗位配置」中新增岗位</div>';
+
+      updateNoticeRoleCount();
+
+      return;
+
+    }
+
+    noticeRoleOptions.innerHTML = sides.map(function (side) {
+
+      return '<div class="notice-role-group"><strong>' + esc(side) + '</strong>' + groups[side].map(function (name) {
+
+        return '<label class="notice-role-choice"><input type="checkbox" name="noticeRole" value="' + esc(name) + '" ' + (selectedNames.indexOf(name) >= 0 ? 'checked' : '') + '><span>' + esc(name) + '</span></label>';
+
+      }).join('') + '</div>';
+
+    }).join('');
+
+    updateNoticeRoleCount();
+
+  }
+
+  function hideNoticeErrors() {
+
+    Array.prototype.forEach.call(noticeModal.querySelectorAll('.form-err'), function (element) { element.classList.remove('show'); });
+
+    document.getElementById('errNLevel').textContent = '请选择预警等级';
+
+  }
+
+  function openNoticeForm(index) {
+
+    noticeEditIndex = (index === undefined || index === null) ? null : index;
+
+    var item = noticeEditIndex === null ? null : noticeTemplates[noticeEditIndex];
+
+    noticeFormTitle.textContent = item ? '编辑通知模板' : '新建通知模板';
+
+    fNLevel.value = item ? item.level : '';
+
+    fNContent.value = item ? item.content : '';
+
+    noticeCharCount.textContent = fNContent.value.length + ' / 500';
+
+    renderNoticeRoleOptions(item ? item.roleNames : []);
+
+    Array.prototype.forEach.call(noticeModal.querySelectorAll('input[name="noticeMethod"]'), function (input) {
+
+      input.checked = !!item && (item.methods || []).indexOf(input.value) >= 0;
+
+    });
+
+    hideNoticeErrors();
+
+    noticeModal.classList.add('show');
+
+    setTimeout(function () { fNLevel.focus(); }, 60);
+
+  }
+
+  function closeNoticeForm() { noticeModal.classList.remove('show'); }
+
+  function formatNoticeTime() {
+
+    var date = new Date();
+
+    function pad(value) { return String(value).padStart(2, '0'); }
+
+    return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate()) + ' ' + pad(date.getHours()) + ':' + pad(date.getMinutes());
+
+  }
+
+  function sameStringSet(a, b) {
+
+    return (a || []).slice().sort().join('|') === (b || []).slice().sort().join('|');
+
+  }
+
+  function saveNoticeForm() {
+
+    var level = fNLevel.value;
+
+    var content = fNContent.value.trim();
+
+    var roleNames = selectedNoticeRoles();
+
+    var methods = selectedNoticeMethods();
+
+    var ok = true;
+
+    hideNoticeErrors();
+
+    if (!level) { document.getElementById('errNLevel').classList.add('show'); ok = false; }
+
+    if (!content) { document.getElementById('errNContent').classList.add('show'); ok = false; }
+
+    if (!roleNames.length) { document.getElementById('errNRoles').classList.add('show'); ok = false; }
+
+    if (!methods.length) { document.getElementById('errNMethods').classList.add('show'); ok = false; }
+
+    if (!ok) return;
+
+    var duplicate = noticeTemplates.some(function (item, index) {
+
+      return index !== noticeEditIndex && item.level === level && sameStringSet(item.roleNames, roleNames) && sameStringSet(item.methods, methods);
+
+    });
+
+    if (duplicate) {
+
+      document.getElementById('errNLevel').textContent = '相同预警等级、通知岗位和推送方式的模板已存在';
+
+      document.getElementById('errNLevel').classList.add('show');
+
+      return;
+
+    }
+
+    var next = { id: noticeEditIndex === null ? 'notice-' + Date.now() : noticeTemplates[noticeEditIndex].id, level: level, content: content, roleNames: roleNames, methods: methods, updatedAt: formatNoticeTime() };
+
+    if (noticeEditIndex === null) noticeTemplates.push(next); else noticeTemplates[noticeEditIndex] = next;
+
+    saveNoticeTemplates();
+
+    renderNoticeTemplates();
+
+    closeNoticeForm();
+
+    window.showToast(noticeEditIndex === null ? '通知模板已新建' : '通知模板已保存');
+
+  }
+
+  document.getElementById('addNoticeTemplateBtn').addEventListener('click', function () { openNoticeForm(null); });
+
+  document.getElementById('noticeClose').addEventListener('click', closeNoticeForm);
+
+  document.getElementById('noticeCancel').addEventListener('click', closeNoticeForm);
+
+  document.getElementById('noticeSubmit').addEventListener('click', saveNoticeForm);
+
+  fNContent.addEventListener('input', function () { noticeCharCount.textContent = fNContent.value.length + ' / 500'; });
+
+  noticeRoleOptions.addEventListener('change', updateNoticeRoleCount);
+
+  noticeModal.querySelectorAll('[data-notice-var]').forEach(function (button) {
+
+    button.addEventListener('click', function () {
+
+      var token = button.getAttribute('data-notice-var');
+
+      fNContent.setRangeText(token, fNContent.selectionStart, fNContent.selectionEnd, 'end');
+
+      fNContent.dispatchEvent(new Event('input'));
+
+      fNContent.focus();
+
+    });
+
+  });
+
+  noticeTemplateBody.addEventListener('click', function (event) {
+
+    var editButton = event.target.closest('[data-notice-edit]');
+
+    var deleteButton = event.target.closest('[data-notice-del]');
+
+    if (editButton) openNoticeForm(parseInt(editButton.getAttribute('data-notice-edit'), 10));
+
+    if (deleteButton) {
+
+      var index = parseInt(deleteButton.getAttribute('data-notice-del'), 10);
+
+      window.confirmRemove('确定要删除该通知模板吗？删除后不可恢复。', function () {
+
+        noticeTemplates.splice(index, 1);
+
+        saveNoticeTemplates();
+
+        renderNoticeTemplates();
+
+        window.showToast('删除成功');
+
+      });
+
+    }
+
+  });
+
+  renderNoticeTemplates();
+
+
+
+  /* ===== Tab1：处置流程配置（三档卡片） ===== */
+
+  var flowCards = document.getElementById('flowCards');
+
+
+
+  function roleTags(list) {
+
+    if (!list || !list.length) return '<span class="tag tag-neutral tag-dim">—</span>';
+
+    return list.map(function (r) { return '<span class="tag tag-neutral">' + esc(r) + '</span>'; }).join('');
+
+  }
+
+
+
+  function renderFlows() {
+
+    var html = '';
+
+    flows.forEach(function (f) {
+
+      var levelCls = LEVEL_CLS[f.level] || 'tag-mid';
+
+      var notice = f.noticeMin !== null ? f.noticeMin + ' 分钟' : '—';
+
+      var verify = f.verifyMin !== null ? f.verifyMin + ' 分钟' : '—';
+
+      var push = [];
+
+      if (f.pushApp) push.push('APP 推送');
+
+      if (f.pushSms) push.push('短信推送');
+
+      if (!push.length) push.push('—');
+
+      var superviseTxt = null;
+
+      if (f.superviseMin !== null) superviseTxt = f.superviseMin + ' 分钟';
+
+      else if (f.level === 'Ⅳ 蓝色·提示') superviseTxt = '待配置';
+
+      var stepRows = '';
+
+      if (f.steps && f.steps.length) {
+
+        stepRows = f.steps.map(function (s) {
+
+          return '<tr>'
+
+            + '<td class="flow-node"><b>' + s.nodeMin + '</b> 分钟</td>'
+
+            + '<td class="alarm-cell">' + roleTags(s.gov) + '</td>'
+
+            + '<td class="alarm-cell">' + roleTags(s.ent) + '</td>'
+
+            + '</tr>';
+
+        }).join('');
+
+      } else {
+
+        stepRows = '<tr class="empty-row"><td colspan="3">无监管端升级阶梯，系统自动推送提醒</td></tr>';
+
+      }
+
+      html += '<section class="flow-card">'
+
+        + '<div class="flow-head">'
+
+        + '<div class="flow-head-left">'
+
+        + '<span class="tag ' + levelCls + '">' + esc(f.level) + '</span>'
+
+        + '<span class="flow-name">' + esc(f.name) + '</span>'
+
+        + '</div>'
+
+        + '<button type="button" class="btn btn-ghost flow-edit" data-level="' + esc(f.level) + '">编辑流程</button>'
+
+        + '</div>'
+
+        + '<p class="flow-desc">' + esc(f.desc) + '</p>'
+
+        + '<div class="flow-meta">'
+
+        + '<span>电话通知 <b>' + notice + '</b></span>'
+
+        + '<span>核警 <b>' + verify + '</b></span>'
+
+        + '<span>企业推送 <b>' + esc(push.join(' + ')) + '</b></span>'
+
+        + (superviseTxt ? '<span>超时督办 <b>' + esc(superviseTxt) + '</b></span>' : '')
+
+        + '</div>'
+
+        + '<table class="list flow-table">'
+
+        + '<colgroup><col style="width:16%"><col style="width:46%"><col style="width:38%"></colgroup>'
+
+        + '<thead><tr><th>报警持续</th><th>监管端推送·督办对象</th><th>企业端升级推送</th></tr></thead>'
+
+        + '<tbody>' + stepRows + '</tbody>'
+
+        + '</table>'
+
+        + '</section>';
+
+    });
+
+    flowCards.innerHTML = html;
+
+  }
+
+
+
+  /* ===== Tab3：处置流程可视化（三端泳道，纯静态） ===== */
+  function shortList(arr, max) {
+    if (!arr || !arr.length) return '—';
+    if (arr.length <= max) return arr.join('、');
+    return arr.slice(0, max).join('、') + ' 等 ' + arr.length + ' 人';
+  }
+  function vizTimeline(f) {
+    var mins = [0];
+    if (f.noticeMin !== null) mins.push(f.noticeMin);
+    if (f.verifyMin !== null) mins.push(f.verifyMin);
+    if (f.steps) f.steps.forEach(function (s) { if (s.nodeMin > 0) mins.push(s.nodeMin); });
+    var uniq = [];
+    mins.forEach(function (m) { if (uniq.indexOf(m) < 0) uniq.push(m); });
+    uniq.sort(function (a, b) { return a - b; });
+    uniq.push(null); /* 收尾节点：处置闭环 / 督办 */
+    return uniq;
+  }
+  function laneNode(f, m, lane) {
+    if (m === 0) {
+      if (lane === 'duty') return { title: '报警触发', sub: '值守端受理报警' };
+      if (lane === 'ent') {
+        if (f.level === 'Ⅳ 蓝色·提示') return { title: '推送提醒', sub: '系统自动 APP 推送 · 企业端提醒' };
+        var way = [];
+        if (f.pushApp) way.push('APP 推送');
+        if (f.pushSms) way.push('短信推送');
+        return { title: '推送提醒', sub: (way.length ? way.join('、') : '推送') + ' → 企业负责人' };
+      }
+      if (lane === 'gov') {
+        var s0 = null;
+        if (f.steps) f.steps.forEach(function (s) { if (s.nodeMin === 0) s0 = s; });
+        if (!s0) return null;
+        return { title: '初始推送', sub: shortList(s0.gov, 2) };
+      }
+    }
+    if (m !== null && m > 0) {
+      var step = null;
+      if (f.steps) f.steps.forEach(function (s) { if (s.nodeMin === m) step = s; });
+      if (step) {
+        if (lane === 'ent') return { title: '升级推送', sub: '企业端 ' + shortList(step.ent, 2) };
+        if (lane === 'gov') return { title: '升级推送', sub: shortList(step.gov, 2) };
+      }
+    }
+    if (m !== null && m === f.noticeMin && lane === 'duty') return { title: '电话通知', sub: '通知企业值班人员（安全管理人员），未联系上再通知企业负责人' };
+    if (m !== null && m === f.verifyMin && lane === 'duty') return { title: '核警', sub: '值守端核实报警是否误报' };
+    if (m === null && lane === 'duty') {
+      if (f.level === 'Ⅳ 蓝色·提示') return { title: '督办', sub: '超过时限未整改则通知督办（时限待配置）' };
+      return { title: '处置闭环', sub: '值守人员处置闭环' };
+    }
+    return null;
+  }
+  function renderViz() {
+    var html = '';
+    flows.forEach(function (f) {
+      var cls = { 'Ⅰ 红色·紧急': 'viz-red', 'Ⅲ 黄色·一般': 'viz-yellow', 'Ⅳ 蓝色·提示': 'viz-blue' }[f.level] || 'viz-blue';
+      var times = vizTimeline(f);
+      var lanes = [
+        { key: 'duty', label: '值守端', cls: 'viz-duty' },
+        { key: 'ent', label: '企业端', cls: 'viz-ent' },
+        { key: 'gov', label: '监管端', cls: 'viz-gov' }
+      ];
+      var head = '<div class="viz-flow-head">'
+        + '<span class="tag ' + (LEVEL_CLS[f.level] || 'tag-mid') + '">' + esc(f.level) + '</span>'
+        + '<span class="viz-flow-name">' + esc(f.name) + '</span>'
+        + '</div>';
+      var desc = f.desc ? '<div class="viz-flow-desc">' + esc(f.desc) + '</div>' : '';
+      var grid = '<div class="viz-grid">';
+      var timeRow = '<div class="viz-lane viz-time-row"><div class="viz-lane-tag">时间</div>';
+      times.forEach(function (m) {
+        var t = m === null ? '收尾' : (m === 0 ? '报警时刻' : m + ' 分钟');
+        timeRow += '<div class="viz-cell viz-time-cell">' + t + '</div>';
+      });
+      timeRow += '</div>';
+      grid += timeRow;
+      lanes.forEach(function (lane) {
+        var row = '<div class="viz-lane ' + lane.cls + '"><div class="viz-lane-tag">' + lane.label + '</div>';
+        var anyNode = false;
+        times.forEach(function (m) {
+          var n = laneNode(f, m, lane.key);
+          if (n) {
+            anyNode = true;
+            row += '<div class="viz-cell"><div class="viz-node-card">'
+              + '<div class="viz-node-title">' + esc(n.title) + '</div>'
+              + '<div class="viz-node-sub">' + esc(n.sub) + '</div>'
+              + '</div></div>';
+          } else {
+            row += '<div class="viz-cell viz-cell-empty"></div>';
+          }
+        });
+        row += '</div>';
+        grid += row;
+      });
+      grid += '</div>';
+      html += '<section class="viz-flow ' + cls + '" style="--cols:' + times.length + '">' + head + desc + grid + '</section>';
+    });
+    document.getElementById('vizList').innerHTML = html;
+  }
+
+  /* ===== Tab2：处置岗位管理 ===== */
+
+  var roleBody = document.getElementById('roleBody');
+
+  var roleCount = document.getElementById('roleCount');
+
+  var roleModal = document.getElementById('roleModal');
+
+  var roleFormTitle = document.getElementById('roleFormTitle');
+
+  var fRName = document.getElementById('fRName');
+
+  var fRSide = document.getElementById('fRSide');
+
+  var fRPost = document.getElementById('fRPost');
+
+  var roleEditIndex = null;
+
+
+
+  function renderRoles() {
+
+    roleCount.textContent = String(roles.length);
+
+    if (!roles.length) {
+
+      roleBody.innerHTML = '<tr class="empty-row"><td colspan="5">暂无岗位，请点击「新增岗位」进行添加</td></tr>';
+
+      return;
+
+    }
+
+    var html = '';
+
+    roles.forEach(function (d, i) {
+
+      html += '<tr>'
+
+        + '<td>' + (i + 1) + '</td>'
+
+        + '<td>' + esc(d.name) + '</td>'
+
+        + '<td>' + esc(d.side) + '</td>'
+
+        + '<td>' + (d.post ? esc(d.post) : '—') + '</td>'
+
+        + '<td><button type="button" class="op-btn op-edit" data-i="' + i + '">编辑</button>'
+
+        + '<button type="button" class="op-btn op-del" data-i="' + i + '">删除</button></td>'
+
+        + '</tr>';
+
+    });
+
+    roleBody.innerHTML = html;
+
+  }
+
+
+
+  function hideRoleErr() {
+
+    var errs = roleModal.querySelectorAll('.form-err');
+
+    for (var i = 0; i < errs.length; i++) errs[i].classList.remove('show');
+
+    document.getElementById('errRName').textContent = '请选择岗位';
+
+  }
+
+  function getOrganizationPositions() {
+
+    try {
+
+      var catalog = window.parent && window.parent.positionManagementData;
+
+      if (!catalog || typeof catalog.getPositions !== 'function') return [];
+
+      return catalog.getPositions().filter(function (role) {
+
+        return role && role.name;
+
+      });
+
+    } catch (e) {
+
+      return [];
+
+    }
+
+  }
+
+  function renderRoleOptions(selectedName) {
+
+    var catalog = getOrganizationPositions();
+
+    var exists = catalog.some(function (role) { return role.name === selectedName; });
+
+    var html = '<option value="">请选择岗位</option>';
+
+    catalog.forEach(function (role) {
+
+      html += '<option value="' + esc(role.name) + '">' + esc(role.name) + '</option>';
+
+    });
+
+    if (selectedName && !exists) {
+
+      html += '<option value="' + esc(selectedName) + '">' + esc(selectedName) + '（历史配置）</option>';
+
+    }
+
+    if (!catalog.length && !selectedName) {
+
+      html = '<option value="">暂无可选岗位，请先在组织管理 - 岗位管理中创建</option>';
+
+    }
+
+    fRName.innerHTML = html;
+
+    fRName.disabled = !catalog.length && !selectedName;
+
+    fRName.value = selectedName || '';
+
+  }
+
+  function openRoleForm(index) {
+
+    roleEditIndex = (index === undefined || index === null) ? null : index;
+
+    hideRoleErr();
+
+    renderRoleOptions('');
+
+    fRSide.value = '';
+
+    fRPost.value = '';
+
+    roleFormTitle.textContent = (roleEditIndex === null) ? '新增岗位' : '编辑岗位';
+
+    if (roleEditIndex !== null) {
+
+      var d = roles[roleEditIndex];
+
+      renderRoleOptions(d.name);
+
+      fRSide.value = d.side;
+
+      fRPost.value = d.post || '';
+
+    }
+
+    roleModal.classList.add('show');
+
+    setTimeout(function () { fRName.focus(); }, 60);
+
+  }
+
+  function closeRoleForm() { roleModal.classList.remove('show'); }
+
+
+
+  function saveRoleForm() {
+
+    var name = fRName.value.trim();
+
+    var side = fRSide.value;
+
+    var post = fRPost.value.trim();
+
+    var ok = true;
+
+    hideRoleErr();
+
+    if (!name) { document.getElementById('errRName').classList.add('show'); ok = false; }
+
+    if (!side) { document.getElementById('errRSide').classList.add('show'); ok = false; }
+
+    if (!ok) return;
+
+    var dup = roles.some(function (d, i) {
+
+      return i !== roleEditIndex && d.name === name;
+
+    });
+
+    if (dup) {
+
+      document.getElementById('errRName').textContent = '该岗位已配置';
+
+      document.getElementById('errRName').classList.add('show');
+
+      return;
+
+    }
+
+    if (roleEditIndex === null) {
+
+      roles.push({ name: name, side: side, post: post });
+
+      window.showToast('新增成功');
+
+    } else {
+
+      roles[roleEditIndex] = { name: name, side: side, post: post };
+
+      window.showToast('保存成功');
+
+    }
+
+    saveArr(ROLE_KEY, roles);
+
+    renderRoles();
+
+    renderFlows();
+
+    renderViz();
+
+    closeRoleForm();
+
+  }
+
+
+
+  fRName.addEventListener('input', function () {
+
+    document.getElementById('errRName').classList.remove('show');
+
+  });
+
+  fRSide.addEventListener('change', function () {
+
+    document.getElementById('errRSide').classList.remove('show');
+
+  });
+
+
+
+  /* ===== 编辑处置流程抽屉 ===== */
+
+  var flowModal = document.getElementById('flowModal');
+
+  var flowFormTitle = document.getElementById('flowFormTitle');
+
+  var flowLevelLabel = document.getElementById('flowLevelLabel');
+
+  var fNotice = document.getElementById('fNotice');
+
+  var fVerify = document.getElementById('fVerify');
+
+  var fPushApp = document.getElementById('fPushApp');
+
+  var fPushSms = document.getElementById('fPushSms');
+
+  var fSupervise = document.getElementById('fSupervise');
+
+  var stepRowsEl = document.getElementById('stepRows');
+
+  var flowEditLevel = null;
+
+
+
+  function govRoleList() {
+
+    return roles.filter(function (r) { return r.side.indexOf('监管端') === 0; });
+
+  }
+
+  function entRoleList() {
+
+    return roles.filter(function (r) { return r.side === '企业端'; });
+
+  }
+
+  function stepRowHtml(s) {
+
+    var govSel = (s && s.gov) || [];
+
+    var entSel = (s && s.ent) || [];
+
+    var govChk = govRoleList().map(function (r) {
+
+      return '<label class="chk-item"><input type="checkbox" value="' + esc(r.name) + '"' + (govSel.indexOf(r.name) !== -1 ? ' checked' : '') + '>' + esc(r.name) + '</label>';
+
+    }).join('');
+
+    var entChk = entRoleList().map(function (r) {
+
+      return '<label class="chk-item"><input type="checkbox" value="' + esc(r.name) + '"' + (entSel.indexOf(r.name) !== -1 ? ' checked' : '') + '>' + esc(r.name) + '</label>';
+
+    }).join('');
+
+    return '<div class="step-row">'
+
+      + '<div class="step-node"><input class="form-input step-min" type="number" min="0" step="1" value="' + ((s && s.nodeMin) || 0) + '"><span>分钟</span></div>'
+
+      + '<div class="step-col"><div class="chk-sub">监管端推送·督办对象</div><div class="chk-group">' + govChk + '</div></div>'
+
+      + '<div class="step-col"><div class="chk-sub">企业端升级推送</div><div class="chk-group">' + entChk + '</div></div>'
+
+      + '<button type="button" class="step-del" title="删除节点">×</button>'
+
+      + '</div>';
+
+  }
+
+  function renderStepRows(steps) {
+
+    stepRowsEl.innerHTML = '';
+
+    steps.forEach(function (s) {
+
+      var div = document.createElement('div');
+
+      div.innerHTML = stepRowHtml(s);
+
+      stepRowsEl.appendChild(div.firstChild);
+
+    });
+
+  }
+
+
+
+  function openFlowForm(level) {
+
+    var f = null;
+
+    for (var i = 0; i < flows.length; i++) {
+
+      if (flows[i].level === level) { f = flows[i]; break; }
+
+    }
+
+    if (!f) return;
+
+    flowEditLevel = level;
+
+    flowFormTitle.textContent = '编辑处置流程';
+
+    flowLevelLabel.textContent = f.level + ' · ' + f.name;
+
+    fNotice.value = f.noticeMin !== null ? String(f.noticeMin) : '';
+
+    fVerify.value = f.verifyMin !== null ? String(f.verifyMin) : '';
+
+    fPushApp.checked = !!f.pushApp;
+
+    fPushSms.checked = !!f.pushSms;
+
+    fSupervise.value = f.superviseMin !== null ? String(f.superviseMin) : '';
+
+    var hasSteps = f.level !== 'Ⅳ 蓝色·提示';
+
+    document.getElementById('flowStepsWrap').style.display = hasSteps ? 'block' : 'none';
+
+    renderStepRows(hasSteps ? (f.steps || []) : []);
+
+    flowModal.classList.add('show');
+
+  }
+
+  function closeFlowForm() { flowModal.classList.remove('show'); }
+
+
+
+  function collectStepRows() {
+
+    var rows = stepRowsEl.querySelectorAll('.step-row');
+
+    var steps = [];
+
+    for (var i = 0; i < rows.length; i++) {
+
+      var row = rows[i];
+
+      var min = parseInt(row.querySelector('.step-min').value, 10);
+
+      if (isNaN(min)) min = 0;
+
+      var gov = [], ent = [];
+
+      var cols = row.querySelectorAll('.step-col');
+
+      var g = cols[0].querySelectorAll('input[type=checkbox]:checked');
+
+      for (var j = 0; j < g.length; j++) gov.push(g[j].value);
+
+      var e = cols[1].querySelectorAll('input[type=checkbox]:checked');
+
+      for (var k = 0; k < e.length; k++) ent.push(e[k].value);
+
+      steps.push({ nodeMin: min, gov: gov, ent: ent });
+
+    }
+
+    return steps;
+
+  }
+
+
+
+  function saveFlowForm() {
+
+    var idx = -1;
+
+    for (var i = 0; i < flows.length; i++) {
+
+      if (flows[i].level === flowEditLevel) { idx = i; break; }
+
+    }
+
+    if (idx === -1) return;
+
+    var f = flows[idx];
+
+    f.noticeMin = fNotice.value === '' ? null : parseInt(fNotice.value, 10);
+
+    f.verifyMin = fVerify.value === '' ? null : parseInt(fVerify.value, 10);
+
+    f.pushApp = fPushApp.checked;
+
+    f.pushSms = fPushSms.checked;
+
+    f.superviseMin = fSupervise.value === '' ? null : parseInt(fSupervise.value, 10);
+
+    if (f.level !== 'Ⅳ 蓝色·提示') f.steps = collectStepRows();
+
+    saveArr(FLOW_KEY, flows);
+
+    renderFlows();
+
+    renderViz();
+
+    closeFlowForm();
+
+    window.showToast('保存成功');
+
+  }
+
+
+
+  /* ===== 事件绑定 ===== */
+
+  flowCards.addEventListener('click', function (e) {
+
+    var btn = e.target.closest('.flow-edit');
+
+    if (btn) openFlowForm(btn.getAttribute('data-level'));
+
+  });
+
+  document.getElementById('flowClose').addEventListener('click', closeFlowForm);
+
+  document.getElementById('flowCancel').addEventListener('click', closeFlowForm);
+
+  document.getElementById('flowSave').addEventListener('click', saveFlowForm);
+
+  document.getElementById('addRoleBtn').addEventListener('click', function () { openRoleForm(null); });
+
+  document.getElementById('roleClose').addEventListener('click', closeRoleForm);
+
+  document.getElementById('roleCancel').addEventListener('click', closeRoleForm);
+
+  document.getElementById('roleSave').addEventListener('click', saveRoleForm);
+
+
+
+  document.getElementById('addStepBtn').addEventListener('click', function () {
+
+    var div = document.createElement('div');
+
+    div.innerHTML = stepRowHtml({ nodeMin: 0, gov: [], ent: [] });
+
+    stepRowsEl.appendChild(div.firstChild);
+
+  });
+
+  stepRowsEl.addEventListener('click', function (e) {
+
+    var del = e.target.closest('.step-del');
+
+    if (del) del.parentElement.remove();
+
+  });
+
+
+
+  roleBody.addEventListener('click', function (e) {
+
+    var btn = e.target.closest('.op-btn');
+
+    if (!btn) return;
+
+    var i = parseInt(btn.getAttribute('data-i'), 10);
+
+    if (btn.classList.contains('op-edit')) openRoleForm(i);
+
+    if (btn.classList.contains('op-del')) {
+
+      window.confirmRemove('确定要删除该处置岗位吗？删除后不可恢复。', function () {
+
+        roles.splice(i, 1);
+
+        saveArr(ROLE_KEY, roles);
+
+        renderRoles();
+
+        renderFlows();
+
+        renderViz();
+
+        window.showToast('删除成功');
+
+      });
+
+    }
+
+  });
+
+
+
+  document.addEventListener('keydown', function (e) {
+
+    if (e.key !== 'Escape') return;
+
+    if (flowModal.classList.contains('show')) closeFlowForm();
+
+    if (roleModal.classList.contains('show')) closeRoleForm();
+
+    if (noticeModal.classList.contains('show')) closeNoticeForm();
+
+  });
+
+
+
+  renderFlows();
+
+  renderRoles();
+
+  renderViz();
+
+})();
+
+</script>
+
+<style id="embedded-shell-cleanup">
+.topbar,.sidebar,.sidebar-mask{display:none!important}
+.layout{padding-top:0!important;min-height:100vh!important}
+.main{margin-left:0!important;padding:22px 26px 36px!important;min-height:100vh!important}
+body{background:#eef2f8!important}
+@media(max-width:560px){.main{padding:16px 12px 24px!important}}
+</style></body>
+
+</html>
+
+

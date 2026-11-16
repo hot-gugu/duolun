@@ -1,0 +1,35 @@
+from pathlib import Path
+p=Path('assets/point-management.js');s=p.read_text(encoding='utf8')
+s=s.replace("if(kind==='monitor')ui.draft.alarmMode=modeOf(x);","if(kind==='monitor'){ui.draft.alarmMode=modeOf(x);ui.draft.execution??={vendorMonitorId:'',navigationId:'',targetId:'',robotId:'',checks:[]};ui.draft.auxVideos??=[];}")
+s=s.replace("const addCheck=()=>ui.draft.checkItems.push({id:'CHK-'+Date.now(),name:'',content:'',monitors:[],execution:'人工核查',auto:false});","const addCheck=()=>ui.draft.execution.checks.push({id:'CHK-'+Date.now(),name:'',content:'',monitors:[ui.draft.id],execution:'机器人复查',parameters:''});\n const pointChecks=p=>(p.links||[]).flatMap(id=>(monitor(id)?.execution?.checks||[]).map(c=>({...c,monitor:id})));\n const videoOptions=computed(()=>props.monitors.filter(m=>m.enabled&&['摄像头','气云设备'].includes(m.source)).map(m=>({label:m.name+' · '+m.id,value:m.id})));\n const autoPolicy=m=>['DCS','GDS'].includes(m.source)?'自动机器人复查':'人工核查，可手动发起机器人复查';")
+s=s.replace("const ruleError=validateRules(d);", "if(d.execution.checks.some(c=>!c.name||!c.content?.trim())){msg.error('请补齐检查指令和现场检查内容');return}\n if(d.execution.checks.length&&(!d.execution.vendorMonitorId?.trim()||!d.execution.navigationId?.trim()||!d.execution.targetId?.trim())){msg.error('请补齐厂商监测点、导航点及现场目标编号');return}\n const ruleError=validateRules(d);")
+# sync preserve local execution and video, rules policy
+s=s.replace("const alarmMode=modeOf(old);const own=", "const execution=clone(old.execution||{}),auxVideos=clone(old.auxVideos||[]);const policies=Object.fromEntries(old.rules.map(r=>[r.id,{notifyRecipients:r.notifyRecipients,notifyChannel:r.notifyChannel,notifyEscalation:r.notifyEscalation}]));data.rules.forEach(r=>Object.assign(r,policies[r.id]||{}));const alarmMode=modeOf(old);const own=")
+s=s.replace("id:identity,enabled,alarmMode,rules:","id:identity,enabled,alarmMode,execution,auxVideos,rules:")
+# point saving no longer modifies checks directly; project legacy compatibility mirror generated from monitors
+st=s.index(" if(d.checkItems.some(c=>!c.name.trim()")
+en=s.index(' for(const id of d.links)',st)
+s=s[:st]+s[en:]
+s=s.replace("d.checks=d.checkItems.map(c=>c.name);","d.checkItems=pointChecks(d);d.checks=d.checkItems.map(c=>c.name);")
+s=s.replace("ui.draft.checkItems.forEach(c=>c.monitors=c.monitors.filter(x=>x!==id))", "void 0")
+s=s.replace("const p=targets[0],checks=clone(p.checkItems.filter(c=>c.monitors.includes(m.id)));","const p=targets[0],checks=clone(m.execution?.checks||[]);")
+st=s.index(' const automatic=checks.filter');en=s.index(' props.store.alarms.unshift(a)',st)
+s=s[:st]+s[en:]
+s=s.replace("+(automatic.length?'及对应复查任务':'')", "")
+s=s.replace("return {alarmModes", "return {pointChecks,videoOptions,autoPolicy,alarmModes")
+s=s.replace("['基础资料','我方检查项','监测关联','业务追溯','变更记录']:['基础资料','报警规则','关联巡检点','变更记录']", "['基础资料','检查项汇总','监测关联','业务追溯','变更记录']:['基础资料','报警规则','检查与机器人映射','辅助视频','关联巡检点','变更记录']")
+s=s.replace('label="第三方执行点位编号"','label="厂商导航点编号"')
+st=s.index(' <template v-if="ui.tab===\'我方检查项\'">');en=s.index(' <template v-if="ui.tab===\'监测关联\'">',st)
+s=s[:st]+''' <template v-if="ui.tab==='检查项汇总'"><h3 class="section-title">监测点检查项</h3><div class="pm-rule" v-for="c in pointChecks(ui.draft)" :key="c.monitor+c.id"><div class="pm-form-grid"><div><span class="info-label">监测点位</span>{{monitor(c.monitor)?.name}}</div><div><span class="info-label">检查指令</span>{{c.name}}</div><div><span class="info-label">检查内容</span>{{c.content}}</div></div><button class="row-btn" @click="open(monitor(c.monitor),'monitor',ui.readonly);ui.tab='检查与机器人映射'">查看监测点配置</button></div><prod-empty-state v-if="!pointChecks(ui.draft).length" text="暂无已配置检查项"/></template>
+ <template v-if="ui.tab==='检查与机器人映射'"><h3 class="section-title">执行配置</h3><n-form label-placement="top"><div class="pm-form-grid"><n-form-item label="报警响应方式"><n-input :value="autoPolicy(ui.draft)" disabled/></n-form-item><n-form-item label="厂商监测点位编码"><n-input v-model:value="ui.draft.execution.vendorMonitorId" :disabled="ui.readonly"/></n-form-item><n-form-item label="厂商导航点编号"><n-input v-model:value="ui.draft.execution.navigationId" :disabled="ui.readonly"/></n-form-item><n-form-item label="现场检查目标编号"><n-input v-model:value="ui.draft.execution.targetId" :disabled="ui.readonly"/></n-form-item><n-form-item label="执行机器人编号"><n-input v-model:value="ui.draft.execution.robotId" :disabled="ui.readonly"/></n-form-item></div></n-form><div class="pm-heading"><h3 class="section-title">检查指令</h3><button v-if="!ui.readonly" class="soft" @click="addCheck">添加检查项</button></div><div class="pm-rule" v-for="(c,i) in ui.draft.execution.checks" :key="c.id"><n-form label-placement="top"><div class="pm-form-grid"><n-form-item label="检查项名称" required><n-select v-model:value="c.name" :options="checkNameOptions(c.name)" filterable consistent-menu-width to="body" :disabled="ui.readonly"/></n-form-item><n-form-item label="现场检查内容" required><n-input v-model:value="c.content" :disabled="ui.readonly"/></n-form-item><n-form-item label="执行参数"><n-input v-model:value="c.parameters" :disabled="ui.readonly"/></n-form-item><n-form-item label="执行顺序"><n-input :value="String(i+1)" disabled/></n-form-item></div></n-form><button v-if="!ui.readonly" class="row-btn" @click="ui.draft.execution.checks.splice(i,1)">移除</button></div><prod-empty-state v-if="!ui.draft.execution.checks.length" text="暂无检查指令"/></template>
+ <template v-if="ui.tab==='辅助视频'"><h3 class="section-title">辅助视频关联</h3><n-select v-model:value="ui.draft.auxVideos" multiple filterable :options="videoOptions" to="body" :disabled="ui.readonly"/><div class="pm-rule" v-for="id in ui.draft.auxVideos" :key="id"><div class="pm-form-grid"><div v-for="f in [['监测点位编号',id],['监测点位名称',monitor(id)?.name],['设备编号',monitor(id)?.deviceId],['通道编号',monitor(id)?.channelId],['通道名称',monitor(id)?.channelName],['预置位编号',monitor(id)?.presetId],['预置位名称',monitor(id)?.presetName],['数据质量',monitor(id)?.quality]]"><span class="info-label">{{f[0]}}</span>{{f[1]||'—'}}</div></div></div></template>
+'''+s[en:]
+# policies independent of upstream rules' threshold lock
+needle='<n-form-item label="规则启用状态">'
+pos=s.index(needle)
+s=s[:pos]+'''<n-form-item label="通知对象"><n-input v-model:value="r.notifyRecipients" :disabled="ui.readonly"/></n-form-item><n-form-item label="通知渠道"><n-select v-model:value="r.notifyChannel" :options="options(['系统内提醒'])" to="body" :disabled="ui.readonly"/></n-form-item><n-form-item label="通知升级方式"><n-select v-model:value="r.notifyEscalation" :options="options(['不升级','增加通知班组负责人','增加通知上级负责人'])" to="body" :disabled="ui.readonly"/></n-form-item>'''+s[pos:]
+# preserve upstream rule policy modifications on save
+s=s.replace("clone(old.rules.filter(r=>r.origin==='上游同步'))", "old.rules.filter(r=>r.origin==='上游同步').map(r=>({...clone(r),...Object.fromEntries(['notifyRecipients','notifyChannel','notifyEscalation'].map(k=>[k,d.rules.find(x=>x.id===r.id)?.[k]]))}))")
+s=s.replace("props.store.points.reduce((n,p)=>n+p.checkItems.length,0)","props.monitors.reduce((n,m)=>n+(m.execution?.checks?.length||0),0)")
+s=s.replace('p.checkItems.length','pointChecks(p).length')
+p.write_text(s,encoding='utf8')

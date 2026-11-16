@@ -1,0 +1,11 @@
+{
+  "checked_at": "2026-11-15",
+  "sources": {
+    "智能巡检实时一张图.html": "2a2150239132dd1e17462dadbcce6a6206f6b7565fa1227995b91288f4ca86da",
+    "assets\\map-alarm-list.js": "77f7b6e4a19f58a16da30cb94c7c17b3f209327e86c5dc3b4be0415ce610618f",
+    "assets\\alert-record-rules.js": "3ed0f33cd36cb3d262a28db1279909c0ee45411fb3dfd2b6221bbc939fffe779"
+  },
+  "browser_verified": false,
+  "reason": "Browser Use URL policy blocked local file access",
+  "checks": "Inline syntax; alarm lifecycle; rule filtering; route arguments; storage refresh; empty state; current robot fields passed in isolated execution."
+}
