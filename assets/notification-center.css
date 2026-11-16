@@ -6,3 +6,5 @@
 .nc-fault-type{font-weight:600;color:#172033}.nc-key-facts .nc-grade--red{color:#ef2f4f}.nc-key-facts .nc-grade--orange{color:#d98600}.nc-key-facts .nc-grade--blue{color:#0879ff}.nc-fault-record .nc-key-facts{gap:8px 16px;padding:10px 12px;margin-bottom:10px}.nc-fault-record .nc-location{margin-bottom:8px}
 
 .workflow-alert.nc-popup-record{position:static;width:100%;max-height:none;overflow:visible;margin-top:12px;z-index:auto}.nc-popup-record .workflow-alert-head h3{flex:none}.nc-popup-record .workflow-alert-head .nc-mark-read{margin-left:auto}.nc-popup-record .workflow-alert-head>span:last-child{margin-left:auto}
+
+.mobile-top-entry{text-decoration:none;white-space:nowrap;font-weight:400}
