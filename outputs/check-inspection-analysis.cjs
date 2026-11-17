@@ -1,0 +1,37 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert');
+const context={console,ProdEmptyState:{}};vm.createContext(context);
+vm.runInContext(fs.readFileSync('assets/vue.global.prod.js','utf8'),context);
+vm.runInContext(fs.readFileSync('assets/inspection-analysis.js','utf8')+';globalThis.Analysis=InspectionAnalysis',context);
+const {reactive,nextTick}=context.Vue,clock=Date.parse('2026-11-16T12:00:00+08:00');
+const monitors=reactive([{id:'M1',name:'压力表',tankArea:'丙烯罐区',tankId:'T41402A',deviceId:'D1',metric:'压力'},{id:'M2',name:'温度表',tankArea:'丙烯罐区',tankId:'T41402B',deviceId:'D2',metric:'温度'}]);
+const task=(id,extra={})=>({id,name:id,kind:'周期任务',date:'2026-11-16',time:'08:00',state:'已完成',robotId:'R1',monitorIds:['M1'],...extra});
+const store=reactive({tasks:[task('T1',{planId:'P1',reportRecords:[{monitorId:'M1',executionStatus:'已完成',recognitionResult:0,quality:'有效'}]}),task('T2',{time:'09:00',state:'失败',monitorIds:['M1','M2'],reportRecords:[{monitorId:'M1',executionStatus:'已完成',recognitionResult:10,quality:'无效'}]}),task('I1',{kind:'即时任务'}),task('FUTURE',{time:'14:00'}),task('CANCEL',{time:'10:00',deleted:true})],inspectionPlans:[{id:'P1',name:'小时计划',robotId:'R1',createdAt:'2026-11-16 07:00:00',config:{kind:'周期任务',start:Date.parse('2026-11-16T00:00:00+08:00'),end:Date.parse('2026-11-16T00:00:00+08:00'),time:'08:00',every:1,unit:'小时',selectedMonitors:['M1']}}],alarms:[{id:'A1',monitor:'M1',source:'DCS',level:'一级',time:'2026-11-16 08:00:00',state:'已判真警',verifiedAt:'2026-11-16 08:10:00'},{id:'A2',monitor:'M1',source:'DCS',level:'二级',time:'2026-11-16 09:00:00',state:'已判误报'},{id:'A3',monitor:'M2',source:'GDS',level:'三级',time:'2026-11-16 10:00:00',state:'待核查',alarmState:'RECOVERED'}],events:[{id:'E1',alarmId:'A1',createdAt:'2026-11-16 08:10:00',state:'处理完成',completedAt:'2026-11-16 08:30:00'},{id:'E2',alarmId:'A2',createdAt:'2026-11-16 09:00:00',state:'待处理'},{id:'E3',alarmId:'A1',state:'待处理'}]});
+const devices=reactive([{id:'D1',name:'采集设备',faultHistory:[{id:'F1',title:'通信中断',start:'2026-11-16 10:00:00',status:'未恢复'},{id:'F2',title:'离线',start:'未提供',status:'未恢复'}]}]);
+let link;const model=context.Analysis.create({store,monitors,getDevices:()=>devices,now:()=>clock,openRecord:(kind,row)=>link=[kind,row.id]});
+(async()=>{
+ model.quick('今日');await nextTick();
+ assert.equal(model.slots.value.filter(s=>s.missing).length,4,'9/10/11/12 points missing in P1, existing 8 deduped');
+ assert.equal(model.summary.value.planned,6,'2 real planned + 4 absent slots; excludes instant, future, deleted');
+ assert.equal(model.coverage.value.expected,7);assert.equal(model.coverage.value.valid,1,'zero is valid, explicit invalid result excluded');assert.equal(model.summary.value.coverage,'14.3%');
+ assert.equal(model.alarms.value.length,3);assert.equal(model.summary.value.verification,'66.7%');assert.equal(model.events.value.length,1,'false alarms and missing event creation time excluded from cohort');assert.equal(model.summary.value.handling,'100.0%');
+ assert.equal(model.faults.value.length,1);assert.equal(model.backlogFaults.value.length,2,'missing start belongs only to current backlog');
+ model.show('completed');assert.equal(model.ui.detail.rows.length,1,'completion numerator detail excludes instant/future');
+ model.drill(model.ui.detail.rows[0]);assert.deepEqual(link,['task','T1']);assert(model.ui.savedDetail);assert.equal(model.ui.detail,null);
+ model.ui.tab='报警与闭环';model.ui.source='DCS';await nextTick();assert.equal(model.alarms.value.length,2);assert.equal(model.summary.value.verification,'100.0%');
+ model.ui.tab='综合概览';await nextTick();assert.equal(model.alarms.value.length,3,'hidden topic filter must not contaminate overview');
+ model.ui.part='T41402B';await nextTick();assert.equal(model.alarms.value.length,1);assert.equal(model.coverage.value.expected,1);assert.equal(model.coverage.value.valid,0);
+ model.ui.part=null;store.tasks.push(task('LEGACY',{monitorIds:undefined}));await nextTick();assert.equal(model.summary.value.coverage,'—','missing denominator snapshot cannot yield fabricated coverage');
+ model.ui.tab='巡检执行';model.ui.plan='P1';await nextTick();assert.equal(model.tasks.value.length,1);assert.equal(model.slots.value.length,5);model.ui.tab='综合概览';await nextTick();assert(model.slots.value.length>5);
+ model.reset();await nextTick();for(const tab of ['综合概览','巡检执行','报警与闭环','设备保障']){model.ui.tab=tab;await nextTick();assert.equal(model.cards.value.length,6);assert.equal(new Set(model.cards.value.map(c=>c.label)).size,6,'unique metric node identities across tabs');assert.equal(model.panels.value.length,3);for(const c of model.cards.value){model.show(c.key);assert(model.ui.detail.schema);assert(Array.isArray(model.ui.detail.rows));}}
+ const count=store.alarms.length;store.alarms.push({...store.alarms[0]});assert.equal(model.alarms.value.length,count,'business alarm identity dedup');
+ assert.equal(model.sections.length,4);assert.equal(model.sections.map(s=>s.name).join(','),'综合概览,巡检执行,报警与闭环,设备保障');
+ model.ui.part='T41402B';await nextTick();for(const section of model.sections)assert.equal(section.model.ui.part,'T41402B','shared space filter reaches all four sections');
+ const overview=model.sections[0].model,execution=model.sections[1].model,alarmSection=model.sections[2].model;
+ execution.ui.robot='NO-ROBOT';await nextTick();assert.equal(execution.tasks.value.length,0);assert(overview.tasks.value.length>0,'execution filter does not affect overview');
+ alarmSection.ui.source='GDS';await nextTick();assert.equal(alarmSection.alarms.value.length,1);
+ alarmSection.show('alarms','报警明细');alarmSection.drill(alarmSection.ui.detail.rows[0]);assert(model.ui.returning);model.restoreContext();assert(!model.ui.returning);assert(alarmSection.ui.detail,'restore originating column drawer');
+ assert(!context.Analysis.component.template.includes('role="tab'));assert(!context.Analysis.sectionComponent.template.includes('ia-ledger'));assert(!context.Analysis.sectionComponent.template.includes('model.tableRows'));
+ context.Vue.compile(context.Analysis.sectionComponent.template,{decodeEntities:x=>x});
+ context.Vue.compile(context.Analysis.component.template,{decodeEntities:x=>x});
+ console.log('PASS: cohorts, planned-slot dedup, cancelled/future/immediate exclusion, coverage quality, missing snapshots, verification, false-alarm event exclusion, fault backlog, scoped filters, all metric drills, links and template');
+})().catch(e=>{console.error(e);process.exitCode=1});

@@ -1,0 +1,1 @@
+import{s as h}from"./light-C6iFuy1F.js";function l(e){const{opacityDisabled:o,heightTiny:t,heightSmall:s,heightMedium:n,heightLarge:r,heightHuge:a,primaryColor:i,fontSize:g}=e;return{fontSize:g,textColor:i,sizeTiny:t,sizeSmall:s,sizeMedium:n,sizeLarge:r,sizeHuge:a,color:i,opacitySpinning:o}}const c={common:h,self:l};export{c as a,l as s};

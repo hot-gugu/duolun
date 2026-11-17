@@ -1,0 +1,1 @@
+import{L as r,s as a,N as i}from"./light-C6iFuy1F.js";import{h as p}from"./Popover-17HLIuny.js";const c={padding:"8px 14px"};function n(e){const{borderRadius:s,boxShadow2:t,baseColor:o}=e;return Object.assign(Object.assign({},c),{borderRadius:s,boxShadow:t,color:i(o,"rgba(0, 0, 0, .85)"),textColor:o})}const b=r({name:"Tooltip",common:a,peers:{Popover:p},self:n});export{c,b as t};

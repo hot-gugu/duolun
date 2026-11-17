@@ -1,0 +1,1 @@
+import{s as y}from"./light-C6iFuy1F.js";function s(t){const{textColorBase:o,opacity1:p,opacity2:c,opacity3:i,opacity4:a,opacity5:e}=t;return{color:o,opacity1Depth:p,opacity2Depth:c,opacity3Depth:i,opacity4Depth:a,opacity5Depth:e}}const n={common:y,self:s};export{n as i,s};
