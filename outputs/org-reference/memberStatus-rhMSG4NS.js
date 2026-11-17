@@ -1,1 +1,0 @@
-function r(e){return e==="SUSPENDED"||e==="INACTIVE"?"停职":e==="RESIGNED"?"离职":"在职"}function i(e){if(!e)return"—";const n=String(e).replace("T"," ");return n.length>19?n.slice(0,19):n}export{r as e,i as f};

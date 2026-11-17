@@ -1,1 +1,0 @@
-function e(t){const r=String(t??"").trim().toUpperCase();if(r){if(r==="SUPERVISION"||r==="2")return"SUPERVISION";if(r==="BUSINESS"||r==="1")return"BUSINESS";if(r==="DEPARTMENT")return"DEPARTMENT"}}function o(t,r){return e(t)}function S(t,r){const n=e(t),i=e(r);return n&&i?n===i:String(t??"").trim().toUpperCase()===String(r??"").trim().toUpperCase()}export{e as c,o as e,S as o};

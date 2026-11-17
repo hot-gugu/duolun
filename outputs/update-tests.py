@@ -1,7 +1,0 @@
-from pathlib import Path
-p=Path('assets/verify-points.cjs');s=p.read_text(encoding='utf8');s=s.replace("vm.runInContext(fs.readFileSync('assets/point-management.js'", "vm.runInContext(fs.readFileSync('assets/point-workflow.js','utf8'),ctx);\nvm.runInContext(fs.readFileSync('assets/point-management.js'",1)
-s=s.replace("ui.addLink();ui.addCheck();Object.assign(ui.ui.draft.checkItems.at(-1),{name:'现场烟火检查',content:'核实烟火',monitors:[m.id],execution:'人工核查',auto:false});ui.save();assert(point.links.includes(m.id));assert(point.checks.includes('现场烟火检查'));", "ui.addLink();ui.save();assert(point.links.includes(m.id));ui.open(m,'monitor');ui.addCheck();Object.assign(ui.ui.draft.execution,{vendorMonitorId:'TEST-MP',navigationId:point.robotId,targetId:'TEST-TARGET'});Object.assign(ui.ui.draft.execution.checks.at(-1),{name:'现场图像采集',content:'核实烟火'});ui.save();assert(m.execution.checks.length);")
-s=s.replace("ui.open(dp,'point');const c=ui.ui.draft.checkItems.find(c=>c.monitors.includes(dcs.id));assert(c);c.auto=true;c.execution='机器人复查';ui.save();", "ui.open(dcs,'monitor');const c=ui.ui.draft.execution.checks[0];assert(c);c.execution='机器人复查';ui.save();")
-s=s.replace("ui.open(dp,'point');ui.ui.draft.checkItems=[];ui.save();", "ui.open(dcs,'monitor');ui.ui.draft.execution.checks=[];ui.save();")
-s=s.replace("{...single,point:null},'robot').includes('执行点位')", "{...single,monitor:null},'robot').includes('监测点')")
-p.write_text(s,encoding='utf8')
