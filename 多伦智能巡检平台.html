@@ -816,19 +816,20 @@ const currentReadingTone=a=>{
  const raw=a.currentValue??mget(a.monitor)?.value;
  if(raw===null||raw===undefined||raw===''||!Number.isFinite(Number(raw)))return 'unknown';
  if((a.currentQuality||mget(a.monitor)?.quality)==='已失效')return 'unknown';
- const v=Number(raw),matches=(op,t)=>{if(t===null||t===undefined||t===''||!Number.isFinite(Number(t)))return false;t=Number(t);return ({'大于等于':v>=t,'>=':v>=t,'小于等于':v<=t,'<=':v<=t,'大于':v>t,'>':v>t,'小于':v<t,'<':v<t,'等于':v===t,'=':v===t,'==':v===t,'不等于':v!==t,'!=':v!==t})[op]===true;};
- const rules=[...(mget(a.monitor)?.rules||[]),{op:a.triggerOp||a.ruleSnapshot?.op,threshold:a.triggerLimit??a.ruleSnapshot?.threshold,level:a.level}];
- const levels=rules.filter(r=>r.enabled!==false&&matches(r.op,r.threshold)).map(r=>r.level);
+ const v=Number(raw),matches=(op,t,upper)=>{if(['区间内','区间外'].includes(op))return NumericAlarmComparison.matches(op,v,t,upper);if(t===null||t===undefined||t===''||!Number.isFinite(Number(t)))return false;t=Number(t);return ({'大于等于':v>=t,'>=':v>=t,'小于等于':v<=t,'<=':v<=t,'大于':v>t,'>':v>t,'小于':v<t,'<':v<t,'等于':v===t,'=':v===t,'==':v===t,'不等于':v!==t,'!=':v!==t})[op]===true;};
+ const rules=[...(mget(a.monitor)?.rules||[]),{op:a.triggerOp||a.ruleSnapshot?.op,threshold:a.triggerLimit??a.ruleSnapshot?.threshold,thresholdUpper:a.triggerUpper??a.ruleSnapshot?.thresholdUpper,level:a.level}];
+ const levels=rules.filter(r=>r.enabled!==false&&matches(r.op,r.threshold,r.thresholdUpper)).map(r=>r.level);
  return levels.includes('一级')?'one':levels.includes('二级')?'two':levels.includes('三级')?'three':'normal';
 };
 const linkedReadingAlarm=m=>{
  if(m.value===null||m.value===undefined||m.value===''||!Number.isFinite(Number(m.value))||m.quality==='已失效')return null;
  const value=Number(m.value),rank={'一级':1,'二级':2,'三级':3};
- const active=store.alarms.filter(a=>a.monitor===m.id&&a.alarmState==='ACTIVE').map(a=>({op:a.triggerOp||a.ruleSnapshot?.op,threshold:a.triggerLimit??a.ruleSnapshot?.threshold,level:a.level,band:a.band||a.ruleSnapshot?.band}));
+ const active=store.alarms.filter(a=>a.monitor===m.id&&a.alarmState==='ACTIVE').map(a=>({op:a.triggerOp||a.ruleSnapshot?.op,threshold:a.triggerLimit??a.ruleSnapshot?.threshold,thresholdUpper:a.triggerUpper??a.ruleSnapshot?.thresholdUpper,level:a.level,band:a.band||a.ruleSnapshot?.band}));
  const rules=[...active,...(m.rules||[])];
  const matched=rules.filter(r=>{
   if(r.enabled===false||!rank[r.level]||r.threshold===null||r.threshold===undefined||r.threshold===''||!Number.isFinite(Number(r.threshold)))return false;
   const t=Number(r.threshold);
+  if(['区间内','区间外'].includes(r.op))return NumericAlarmComparison.matches(r.op,value,t,r.thresholdUpper);
   return ({'大于等于':value>=t,'>=':value>=t,'小于等于':value<=t,'<=':value<=t,'大于':value>t,'>':value>t,'小于':value<t,'<':value<t,'等于':value===t,'=':value===t,'==':value===t,'不等于':value!==t,'!=':value!==t})[r.op]===true;
  }).sort((a,b)=>rank[a.level]-rank[b.level]);
  if(!matched.length)return null;

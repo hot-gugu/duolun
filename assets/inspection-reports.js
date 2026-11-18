@@ -101,7 +101,11 @@ const InspectionReports={
   const table=(headers,data)=>{const width=9360,col=Math.floor(width/headers.length),row=(values,head=false)=>'<w:tr><w:trPr>'+(head?'<w:tblHeader/>':'')+'</w:trPr>'+values.map(x=>'<w:tc><w:tcPr><w:tcW w:w="'+col+'" w:type="dxa"/>'+(head?'<w:shd w:fill="EEF6FF"/>':'')+'</w:tcPr>'+para(x,20)+'</w:tc>').join('')+'</w:tr>';return '<w:tbl><w:tblPr><w:tblW w:w="9360" w:type="dxa"/><w:tblLayout w:type="fixed"/><w:tblBorders>'+['top','left','bottom','right','insideH','insideV'].map(x=>'<w:'+x+' w:val="single" w:sz="4" w:color="D8E5F4"/>').join('')+'</w:tblBorders><w:tblCellMar><w:left w:w="100" w:type="dxa"/><w:right w:w="100" w:type="dxa"/></w:tblCellMar></w:tblPr><w:tblGrid>'+headers.map(()=>'<w:gridCol w:w="'+col+'"/>').join('')+'</w:tblGrid>'+row(headers,true)+data.map(x=>row(x)).join('')+'</w:tbl>'+para('')};
   const metrics=[['计划应执行 / 已完成',robot?v.planned+'次 / '+v.completed+'次':'未纳入'],['计划任务完成率',robot?v.completion:'未纳入'],['新增报警 / 待核查',v.alarms+'条 / '+v.unverified+'条'],['本期完成 / 期末未完成',v.closed+'项 / '+v.pending+'项']];
   let body=para(r.name,36)+para('统计周期：'+date(r.from)+' 至 '+date(r.to),22)+para('数据截止：'+stamp(r.cutoff),20)+heading('一、总体情况')+paragraphs(overview)+heading('二、主要工作开展情况')+paragraphs(work)+table(['核心指标','本期情况'],metrics)+heading('三、异常发现与处置情况')+paragraphs(abnormal)+heading('四、存在问题与风险')+concerns.map(x=>paragraphs(x)).join('')+para('统计说明：任务、报警与处理事件分别计数，报警条数不等于隐患数量。核查结论取报表生成时的记录，事件处置按已记录时间归期；无报警不能单独据此判定现场安全。',20);
-  {body+='<w:p><w:r><w:br w:type="page"/></w:r></w:p>'+heading('附件：巡检及异常处理明细');
+  {body+='<w:p><w:r><w:br w:type="page"/></w:r></w:p>'+heading('附件一：巡检及异常处理明细');
+   const taskHeaders=['任务名称','执行机器人','实际开始时间','实际结束时间','任务状态','有效结果对象数'];
+   const taskColumns=[1,3,8,9,10,12];
+   const plannedRows=r.tables.tasks?.rows||[];
+   body+=plannedRows.length?table(taskHeaders,plannedRows.map(x=>taskColumns.map(i=>x.values[i]??'—'))):para('暂无相关记录。');
    const demoDay=date(r.from),demoArea=r.area||'演示罐区';
    const demoAlarms=[
     ['DEMO-A001','演示储罐A','DEMO-M001',demoArea,'演示部位A','温度异常','机器人现场检测','二级','—',demoDay+' 09:10:00','已判真警','人工现场核查',demoDay+' 09:25:00'],
@@ -115,7 +119,7 @@ const InspectionReports={
    const append=(title,key,fallback,columns)=>{const data=r.tables[key];body+=heading(title);const records=data?.rows.length?data.rows:fallback?.map(values=>({id:values[0],values}));if(!records?.length){body+=para('暂无相关记录。');return}if(!data?.rows.length)body+=para('以下为演示数据，仅用于展示附件内容和排版，不代表现场记录，不计入正文统计。',20);const selected=columns||data.headers.map((label,index)=>({label,index}));body+=table(selected.map(c=>c.label),records.map(record=>selected.map(c=>record.values[c.index]??'—')))};
    body+=heading('附件二：即时任务明细');
    const instantRows=r.tables.instant?.rows||[];
-   body+=instantRows.length?table(['任务名称','执行机器人','实际开始时间','实际结束时间','任务状态','有效结果对象数'],instantRows.map(x=>[1,3,8,9,10,12].map(i=>x.values[i]??'—'))):para('暂无相关记录。');
+   body+=instantRows.length?table(taskHeaders,instantRows.map(x=>taskColumns.map(i=>x.values[i]??'—'))):para('暂无相关记录。');
    append('附件三：报警核查明细','alarms',demoAlarms,[{label:'巡查对象名称',index:1},{label:'报警名称',index:5},{label:'报警来源',index:6},{label:'报警等级',index:7},{label:'报警档位',index:8},{label:'发生时间',index:9},{label:'核查状态',index:10},{label:'核查方式',index:11},{label:'判定时间',index:12}]);
    append('附件四：本期新增事件','events',demoEvents);
   }
