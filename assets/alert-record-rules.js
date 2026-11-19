@@ -1,5 +1,26 @@
 /* Shared display contract for device history, alarm popups and notification center. */
 const AlertRecordRules={
+ alarmListIdentity(monitor,point,objectDictionaries){
+ const defaultTanks={T41402A:'A罐',T41402B:'B罐',T41402C:'C罐',T41402D:'D罐',PUBLIC:'公共设施'};
+ const tankName=id=>objectDictionaries?.tanks?.find(t=>t.code===id)?.name||defaultTanks[id]||(id===monitor?.tankId?monitor?.tankName:'')||'待确认';
+ const tank=monitor?(monitor.tankId==='MULTI'?'多罐覆盖：'+(monitor.tankIds||[]).map(tankName).join('、'):tankName(monitor.tankId)):'—';
+ return {objectName:monitor?.name||'—',tankArea:monitor?.tankArea||'—',partName:monitor?(monitor.tankId==='MULTI'?(monitor.tankIds||[]).join('、')||'—':monitor.tankId==='PUBLIC'?'公共设施':monitor.tankId==='UNCONFIRMED'?'待确认':monitor.tankId||'—'):'—',tankName:monitor?(monitor.tankArea||'—')+'/'+tank:'—',pointName:point?.name||'—'};
+},
+ alarmFields(a,monitor,point){const matched=monitor&&monitor.source===a.source;const withUnit=v=>v===null||v===undefined||v===''||v==='—'?'—':String(v)+(a.unit?' '+a.unit:'');return {device:a.deviceName||(matched?monitor.name:'设备未关联'),code:a.deviceCode||(matched?a.monitor:'—'),location:a.location||point?.name||'位置未关联',metric:a.metric||(matched?monitor.metric:'—'),reading:withUnit(a.value),threshold:(()=>{const rule=a.ruleSnapshot;const op=rule?.op||a.triggerOp;const symbols={'大于等于':'≥','小于等于':'≤','大于':'>','小于':'<','等于':'=','不等于':'≠','>=':'≥','<=':'≤','==':'=','!=':'≠','>':'>','<':'<','=':'='};if(op==='事件触发')return rule?.name||a.triggerCondition||'事件触发';const limit=a.triggerLimit??rule?.threshold;if(limit===null||limit===undefined||limit==='')return a.triggerCondition||'—';const unit=a.unit||rule?.unit||'';return (symbols[op]?symbols[op]+' ':'比较关系未记录 · ')+String(limit)+(unit?' '+unit:'')})()}},
+ alarmVerificationState(a){return a?.state==='已判真警'?'真警':a?.state==='已判误报'?'误报':'待核查'},
+ isHistoricalAlarm(a){return ['已判真警','已判误报'].includes(a.state)},
+ robotReviewProgress(a,tasks){const current=tasks.find(t=>t.id===a.currentRobotReviewTaskId&&!t.deleted);if(current)return {phase:['排队中','进行中','暂停中'].includes(current.state)?'running':current.state==='已完成'?'complete':'idle',label:['排队中','进行中','暂停中'].includes(current.state)?'机器人核查中':current.state==='已完成'?'机器人核查完成':'机器人核查',taskId:current.id};const linkedTasks=tasks.filter(t=>(t.reviews||[]).includes(a.id)||(a.reviewIds||[]).includes(t.id));const records=[...linkedTasks.map(t=>({state:t.state,taskId:t.id,time:t.createdAt||[t.date,t.time].filter(Boolean).join(' ')})),...(a.robotReviewHistory||[]).map(r=>({state:r.state,taskId:r.taskId||null,time:r.sentAt||r.finishedAt||''}))];const running=records.filter(r=>['排队中','进行中','暂停中'].includes(r.state)).sort((x,y)=>String(y.time).localeCompare(String(x.time)))[0];if(running)return{phase:'running',label:'机器人核查中',taskId:running.taskId};const latest=records.sort((x,y)=>String(y.time).localeCompare(String(x.time)))[0];return latest?.state==='已完成'?{phase:'complete',label:'机器人核查完成',taskId:latest.taskId}:{phase:'idle',label:'机器人核查',taskId:null}},
+ hasRobotReviewBinding(a,m){const execution=m?.execution;return !!(m&&!/OGI|气云/i.test(a?.source||'')&&execution?.robotId&&(execution.checks||[]).some(c=>c.execution==='机器人复查'))},
+ robotReviewUnavailable(a,monitor){return /OGI|气云/i.test(a.source)?'该来源仅支持人工核查':!monitor?.enabled?'巡查对象不存在或已停用':''},
+ alarmActionReason(a,monitor,tasks){
+  if(!a)return '报警不存在';
+  if(a.state.startsWith('已判'))return '已完成判定';
+  if(/OGI|气云/i.test(a.source))return '该来源仅支持人工核查';
+  if(!this.hasRobotReviewBinding(a,monitor))return '巡查对象未绑定机器人核查';
+  if(tasks.some(t=>(t.reviews||[]).includes(a.id)&&['排队中','进行中','暂停中'].includes(t.state)))return '机器人复查任务正在排队或执行';
+  return this.robotReviewUnavailable(a,monitor);
+ },
+ alarmBand(a){return a.band&&!['无档位','—'].includes(a.band)?a.band:'—'},
  videoNames:{'未佩戴安全帽':'未戴安全帽','未戴安全帽':'未戴安全帽','非法闯入':'区域入侵','区域入侵':'区域入侵','人员滞留':'人员滞留','人员聚集':'人员聚集'},
  isVideo:a=>/视频|摄像头/.test(a.source||''),
  allowed(a){return !this.isVideo(a)||!!this.videoNames[a.name]},

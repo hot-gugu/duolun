@@ -7,12 +7,13 @@ const style=document.createElement('style');style.textContent=`
 #alarms .map-alarm-heading{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px}
 #alarms h3{margin:0;color:#e4f5ff;font-size:16px;line-height:1.5;font-weight:600;flex:1;min-width:0;overflow-wrap:anywhere}
 #alarms .map-alarm-level{flex:none;font-size:12px;line-height:22px;padding:0 6px;border-radius:4px;color:var(--alarm-tone);background:rgba(255,255,255,.07)}
-#alarms dl{margin:0;display:grid;gap:5px;font-size:12px;line-height:1.5}
-#alarms dl div{display:grid;grid-template-columns:72px minmax(0,1fr);gap:6px}
+#alarms dl{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 12px;font-size:12px;line-height:1.5}
+#alarms dl div{min-width:0}
 #alarms dt{color:#9cb9ca}#alarms dd{margin:0;color:#d7e8f1;overflow-wrap:anywhere}
 #alarms dd.map-alarm-band{color:var(--alarm-tone)}
 #alarms .alarm-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 #alarms .alarm-actions .button{flex:1 1 auto;justify-content:center;font-size:12px;min-height:30px;padding:4px 7px}
+#alarms .alarm-actions .button:disabled{opacity:.55;cursor:not-allowed}
 .map-alarm-empty{padding:20px 4px;color:#a9c4d5;text-align:center;font-size:12px}`;document.head.append(style);
 let selectedAlarmId=null,currentRows=[],currentSaved=null;
 const pointButtons=()=>Array.from(document.querySelectorAll('#scene > button.hotspot')).filter(b=>/^[A-D]-0[1-3] 巡检点$/.test(b.getAttribute('aria-label')||''));
@@ -65,13 +66,43 @@ const linkedStyle=document.createElement('style');linkedStyle.textContent=`
 const esc=v=>String(v??'未提供').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function render(){
 let saved=null;try{saved=JSON.parse(localStorage.getItem('duolun-platform-v1'))}catch{}
-const seeded=alarms.map(a=>({id:a.id,name:a.title,time:a.time,location:a.place,source:a.id==='OGI-03'?'气云设备':a.id==='A-02'?'机器人':'DCS',level:'二级',monitorName:a.id==='A-02'?'A-02 巡检点':a.id,monitor:null,alarmState:'ACTIVE',mapSeed:true}));
-const rows=saved&&Array.isArray(saved.alarms)?saved.alarms.filter(a=>a.state!=='已判误报'&&!(saved.events||[]).some(e=>e.alarmId===a.id&&e.state==='处理完成')&&AlertRecordRules.allowed(a)):seeded;
+const rows=(Array.isArray(saved?.alarms)?saved.alarms:[]).filter(a=>!AlertRecordRules.isHistoricalAlarm(a));
 currentRows=rows;currentSaved=saved;syncPressureColors();
 if(!rows.some(a=>String(a.id)===String(selectedAlarmId)))selectedAlarmId=(rows.find(a=>pointFor(a)==='A-02'&&a.alarmState!=='RECOVERED')||{}).id??null;
-const root=document.getElementById('alarms');root.innerHTML=rows.map(a=>{const r=AlertRecordRules.business(a,saved?.monitorRecords||[],saved?.tasks||[]);const fields=r.fields.filter(f=>!['报警名称','报警等级','所在位置'].includes(f[0]));const buttons=[['detail','报警详情']];if(r.task?.state==='进行中')buttons.push(['task','查看机器人任务']);buttons.push(['video','视频联动']);return `<article class="alarm" data-alarm-id="${esc(a.id)}" style="--alarm-tone:${r.level==='一级'?'#ff6274':r.level==='二级'?'#ffca70':'#71baff'}"><div class="map-alarm-heading"><h3>${esc(r.name)}</h3><span class="map-alarm-level">${esc(r.level)}报警</span></div><dl>${fields.map(([k,v])=>`<div><dt>${esc(k)}</dt><dd${k==='报警档位'?' class="map-alarm-band"':''}>${esc(v)}</dd></div>`).join('')}</dl><div class="alarm-actions">${buttons.map(([key,label])=>`<button class="button" data-map-action="${key}">${label}</button>`).join('')}</div></article>`}).join('')||'<div class="map-alarm-empty">暂无实时报警</div>';
+const root=document.getElementById('alarms');
+const tasks=saved?.tasks||[];
+root.innerHTML=rows.map(a=>{
+ const monitor=(saved?.monitorRecords||[]).find(m=>m.id===a.monitor);
+ const point=(saved?.points||[]).find(p=>p.id===a.point);
+ const identity=AlertRecordRules.alarmListIdentity(monitor,point,saved?.objectDictionaries);
+ const info=AlertRecordRules.alarmFields(a,monitor,point);
+ const fields=[
+  ['报警时间',a.time],['核查状态',AlertRecordRules.alarmVerificationState(a)],
+  ['报警巡查对象',identity.objectName],['报警档位',AlertRecordRules.alarmBand(a)],
+  ['监测项',info.metric],['报警值',info.reading],['触发阈值',info.threshold],
+  ['报警来源',a.source],['所属罐区',identity.tankArea],['所属部位',identity.partName],
+  ['巡检点名称',identity.pointName]
+ ];
+ const buttons=[{key:'detail',label:'核查佐证'}];
+ if(AlertRecordRules.hasRobotReviewBinding(a,monitor)){
+  const progress=AlertRecordRules.robotReviewProgress(a,tasks);
+  const reason=progress.phase==='idle'?AlertRecordRules.alarmActionReason(a,monitor,tasks):'';
+  buttons.push({key:'robot',label:progress.label,reason});
+ }
+ if((saved?.events||[]).some(e=>e.alarmId===a.id))buttons.push({key:'event',label:'隐患处置记录'});
+ const tone=a.level==='一级'?'#ff6274':a.level==='二级'?'#ffca70':'#71baff';
+ return `<article class="alarm" data-alarm-id="${esc(a.id)}" style="--alarm-tone:${tone}"><div class="map-alarm-heading"><h3>${esc(a.name)}</h3><span class="map-alarm-level" aria-label="报警等级：${esc(a.level)}">${esc(a.level)}</span></div><dl>${fields.map(([label,value])=>`<div><dt>${esc(label)}</dt><dd${label==='报警档位'||label==='报警值'?' class="map-alarm-band"':''}>${esc(value??'—')}</dd></div>`).join('')}</dl><div class="alarm-actions">${buttons.map(button=>`<button type="button" class="button" data-map-action="${button.key}"${button.reason?` disabled title="${esc(button.reason)}"`:''}>${esc(button.label)}</button>`).join('')}</div></article>`;
+}).join('')||'<div class="map-alarm-empty">暂无实时报警</div>';
 syncSelection(false);
-root.onclick=e=>{const card=e.target.closest('[data-alarm-id]');if(card)selectAlarm(card.dataset.alarmId);const button=e.target.closest('[data-map-action]');if(!button)return;const a=rows.find(a=>a.id===button.closest('[data-alarm-id]').dataset.alarmId);if(!a)return;const action=button.dataset.mapAction;if(action==='detail')location.href='多伦智能巡检平台.html?mapAlarm='+encodeURIComponent(a.id)+'#alarms';else if(action==='task'){const r=AlertRecordRules.business(a,saved?.monitorRecords||[],saved?.tasks||[]);location.href='多伦智能巡检平台.html?mapTask='+encodeURIComponent(r.task.id)+'#robot'}else showAlarmCameraLinkage(a)};
+root.onclick=event=>{
+ const card=event.target.closest('[data-alarm-id]');
+ if(!card)return;
+ selectAlarm(card.dataset.alarmId);
+ const button=event.target.closest('[data-map-action]');
+ if(!button||button.disabled)return;
+ const query=new URLSearchParams({mapAlarm:card.dataset.alarmId,mapAlarmAction:button.dataset.mapAction});
+ location.href='多伦智能巡检平台.html?'+query+'#alarms';
+};
 }
 render();window.addEventListener('storage',e=>{if(e.key==='duolun-platform-v1')render()});window.addEventListener('pageshow',render);
 })();
