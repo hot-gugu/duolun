@@ -1,5 +1,9 @@
 /* 巡查对象级执行与来源策略；本地原型不向真实机器人发送请求。 */
 const PointWorkflow={
+ responseMethod(m){
+  if(!['DCS','GDS'].includes(m?.source)||m.responseMethod==='人工核查')return '人工核查';
+  return '自动机器人复查';
+ },
  migrate(store,monitors){
   const copy=x=>JSON.parse(JSON.stringify(x));
   for(const row of [...(store.archiveSnapshot||[]),...(store.pointLogs||[])]){for(const key of ['method','target','text'])if(typeof row[key]==='string')row[key]=row[key].replaceAll('电子档案同步','自动同步').replaceAll('电子档案','同步服务');}
@@ -20,7 +24,7 @@ const PointWorkflow={
  },
  create({store,monitors,persist,openAlarm,openTask}){
   const {reactive,computed,watch}=Vue,ui=reactive({dismissed:[],index:0,video:false,videoRows:null,videoId:null,videoChannel:'visible',focus:null});
-  const mget=id=>monitors.find(m=>m.id===id),automatic=a=>['DCS','GDS'].includes(a.source)&&mget(a.monitor)?.responseStatus!=='关闭',active=t=>['排队中','进行中','暂停中'].includes(t.state);
+  const mget=id=>monitors.find(m=>m.id===id),automatic=a=>{const m=mget(a.monitor);return ['DCS','GDS'].includes(a.source)&&m?.responseStatus!=='关闭'&&PointWorkflow.responseMethod(m)==='自动机器人复查'},active=t=>['排队中','进行中','暂停中'].includes(t.state);
   const task=a=>store.tasks.find(t=>(t.reviews||[]).includes(a.id)&&active(t))||store.tasks.find(t=>(t.reviews||[]).includes(a.id));
   const reason=a=>{const m=mget(a.monitor);return /OGI|气云/i.test(a.source)?'该来源仅支持人工核查':!m||!m.enabled?'巡查对象不存在或已停用':''};
   const dispatch=(alarms,auto=false,selection=null)=>{const valid=alarms.filter(a=>!reason(a)&&(!auto||automatic(a)));let created=0;const bindings=new Map();
@@ -32,7 +36,7 @@ const PointWorkflow={
   const pending=computed(()=>store.alarms.filter(a=>AlertRecordRules.allowed(a)&&a.workflowNotice&&a.alarmState!=='RECOVERED'&&!ui.dismissed.includes(a.id))),current=computed(()=>pending.value[Math.min(ui.index,Math.max(0,pending.value.length-1))]||null);
   const videos=a=>{const m=mget(a?.monitor),p=store.points.find(p=>p.id===a?.point);return [...new Set([...(['摄像头','气云设备'].includes(m?.source)?[m.id]:[]),...(m?.auxVideos||[]),...(p?.links||[]).filter(id=>['摄像头','气云设备'].includes(mget(id)?.source))])].map(mget).filter(Boolean)};
   const currentTask=computed(()=>current.value?task(current.value):null),videoOptions=computed(()=>videos(ui.focus||current.value).map(m=>({label:m.name+' · '+(m.channelName||m.presetName||m.id),value:m.id}))),videoMonitor=computed(()=>(ui.videoRows||[]).find(m=>m.id===ui.videoId)||mget(ui.videoId));
-  const ingest=(a,deferAuto=false)=>{if(!a.ruleSnapshot){const rules=(mget(a.monitor)?.rules||[]).filter(r=>r.enabled!==false&&r.band===a.band&&(a.triggerLimit!=null?Number(r.threshold)===Number(a.triggerLimit):r.op==='事件触发'));if(rules.length===1)a.ruleSnapshot=JSON.parse(JSON.stringify(rules[0]));}if(a.workflowProcessed)return;if(a.sourceAlarmId){const old=store.alarms.find(x=>x!==a&&x.source===a.source&&x.sourceAlarmId===a.sourceAlarmId);if(old){old.currentValue=a.currentValue??a.value;old.currentSampleTime=a.currentSampleTime??a.time;old.alarmState=a.alarmState??old.alarmState;store.alarms.splice(store.alarms.indexOf(a),1);persist();return}}a.tankId??=mget(a.monitor)?.tankId||'UNCONFIRMED';a.tankName??=mget(a.monitor)?.tankName||'待确认';a.area??=mget(a.monitor)?.area;a.location??=mget(a.monitor)?.location;a.monitorName??=mget(a.monitor)?.name;a.workflowProcessed=true;a.workflowNotice=!a.state.startsWith('已判');if(a.workflowNotice&&automatic(a)&&!deferAuto)dispatch([a],true);persist()};
+  const ingest=(a,deferAuto=false)=>{if(!a.ruleSnapshot){const rules=(mget(a.monitor)?.rules||[]).filter(r=>r.enabled!==false&&r.band===a.band&&(a.triggerLimit!=null?Number(r.threshold)===Number(a.triggerLimit):r.op==='事件触发'));if(rules.length===1)a.ruleSnapshot=JSON.parse(JSON.stringify(rules[0]));}if(a.workflowProcessed)return;if(a.sourceAlarmId){const old=store.alarms.find(x=>x!==a&&x.source===a.source&&x.sourceAlarmId===a.sourceAlarmId);if(old){old.currentValue=a.currentValue??a.value;old.currentSampleTime=a.currentSampleTime??a.time;old.alarmState=a.alarmState??old.alarmState;store.alarms.splice(store.alarms.indexOf(a),1);persist();return}}a.tankId??=mget(a.monitor)?.tankId||'UNCONFIRMED';a.tankName??=mget(a.monitor)?.tankName||'待确认';a.area??=mget(a.monitor)?.area;a.location??=mget(a.monitor)?.location;a.monitorName??=mget(a.monitor)?.name;a.monitorCode??=mget(a.monitor)?.code||a.monitor;a.workflowProcessed=true;a.workflowNotice=!a.state.startsWith('已判');if(a.workflowNotice&&automatic(a)&&!deferAuto)dispatch([a],true);persist()};
   // 只处理新增报警；已有历史记录不在升级时补派真实含义的任务。
   const seen=new Set(store.alarms.map(a=>a.id));watch(()=>store.alarms.map(a=>a.id).join('|'),()=>{const incoming=store.alarms.filter(a=>!seen.has(a.id));incoming.forEach(a=>seen.add(a.id));const fresh=incoming.filter(a=>!a.workflowProcessed);fresh.forEach(a=>ingest(a,true));const auto=fresh.filter(a=>store.alarms.includes(a)&&a.workflowNotice&&automatic(a));if(auto.length)dispatch(auto,true)},{flush:'sync'});
   const close=()=>{if(current.value)ui.dismissed.push(current.value.id);ui.index=0};
