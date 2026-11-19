@@ -123,6 +123,9 @@ dialog{background:#0c2840;color:var(--text);border:1px solid #456c88;border-radi
 </style><style>.map-patrol-name{position:absolute;z-index:8;transform:translate(-50%,-100%);pointer-events:none;padding:6px 10px;border:1px solid #639ab5;border-radius:5px;background:#09263c;color:#e7f3f5;font-size:12px;white-space:nowrap}.map-patrol-name[hidden]{display:none}</style><style>
 .tank-d-tip{overflow:visible;background-image:url("assets/map-scene-d-clean.png");background-position:78.990228% 60.988433%}
 .tank-d-tip .tank-c-tip-content{position:absolute;bottom:0;left:0;width:max(100%,175px);height:auto;min-height:100%;padding:7px 9px}
+.tank-ab-tip,.tank-c-gds-tip{overflow:visible}
+.tank-ab-tip .tank-c-tip-content,.tank-c-gds-tip .tank-c-tip-content{position:absolute;left:0;width:max(100%,175px);height:auto;min-height:100%}
+.tank-ab-tip .tank-c-tip-content{bottom:0}
 .tank-gds-title{font-size:11px;font-weight:400;margin-top:7px;padding-top:6px;border-top:1px solid #647576;line-height:18px}
 .tank-gds-row{display:flex;justify-content:space-between;gap:8px;font-size:11px;line-height:20px;white-space:nowrap}.tank-gds-row span:last-child{color:#9ee5e9}
 </style><style>.pipeline-live-tip{overflow:visible}.pipeline-live-tip .tank-c-tip-content{position:absolute;bottom:0;left:0;width:100%;height:auto;min-height:100%}.pipeline-live-row{display:flex;justify-content:space-between;gap:6px;font-size:10px;line-height:17px;white-space:nowrap}.pipeline-live-row span:last-child{color:#9ee5e9}</style><style>.tank-ab-tip{background:none!important}.tank-ab-tip.is-dismissed{display:none}</style></head>
@@ -225,11 +228,17 @@ function applyCleanBackground(element,r){const [x,y,w,h]=r;element.style.backgro
  const layer=document.createElement('img');layer.className='scene-img clean-ab-layer';layer.src='assets/map-scene-instruments-clean.png';layer.alt='';layer.setAttribute('aria-hidden','true');layer.style.zIndex='0';layer.style.clipPath=`inset(${y/1086*100}% ${(1448-x-w)/1448*100}% ${(1086-y-h)/1086*100}% ${x/1448*100}%)`;$('#scene').append(layer);
 });
 const tankCards={A:[150,275,200,130],B:[910,275,205,130],C:[88,580,220,135],D:[970,580,220,135]};
+const tankGdsReadings={
+ A:[['GT_414023','0.80%LEL'],['GT_414024','1.20%LEL'],['GT_414025','0.20 ppm']],
+ B:[['GT_414027','0.50%LEL'],['GDS 点位 2','0.00%LEL'],['GDS 点位 3','0.00%LEL']],
+ C:[['GDS 点位 1','0.00%LEL'],['GDS 点位 2','0.00%LEL'],['GDS 点位 3','0.00%LEL']],
+ D:[['GT_414023','0.00%LEL'],['GT_414024','0.00%LEL'],['GT_414025','0.00%LEL']]
+};
 Object.entries(tankCards).forEach(([t,r])=>{
-    const tip=document.createElement('section');tip.className='tank-c-tip'+(t==='D'?' tank-d-tip':'')+((t==='A'||t==='B')?' tank-ab-tip':'');tip.setAttribute('aria-label',`T41402${t} 仪表数据`);
+    const tip=document.createElement('section');tip.className='tank-c-tip'+(t==='D'?' tank-d-tip':'')+((t==='A'||t==='B')?' tank-ab-tip':t==='C'?' tank-c-gds-tip':'');tip.setAttribute('aria-label',`T41402${t} 仪表数据`);
   Object.assign(tip.style,imageBounds(...r));
   if(t==='A'||t==='B')applyCleanBackground(tip,r);
-  tip.innerHTML=`<div class="tank-c-tip-content"><div class="tank-c-tip-title">T41402${t}<button type="button" aria-label="关闭T41402${t}仪表数据提示">×</button></div>${values[t].map((v,n)=>`<div class="tank-c-tip-row"><span>${tags[n]}${t}</span><span>${n===0?'压力':n<3?'温度':'液位'}</span><span${n===0?` data-pressure-tag="${tags[n]}${t}"`:""}>${v}</span><small>${n===0?'MPa':n<3?'℃':'%'}</small></div>`).join('')}${t==='D'?'<div class="tank-gds-title">GDS 实时监测</div>'+['GT_414023','GT_414024','GT_414025'].map(id=>`<div class="tank-gds-row"><span>${id}</span><span data-gds-id="${id}">0.00%LEL</span></div>`).join(''):''}</div>`;
+  tip.innerHTML=`<div class="tank-c-tip-content"><div class="tank-c-tip-title">T41402${t}<button type="button" aria-label="关闭T41402${t}仪表数据提示">×</button></div>${values[t].map((v,n)=>`<div class="tank-c-tip-row"><span>${tags[n]}${t}</span><span>${n===0?'压力':n<3?'温度':'液位'}</span><span${n===0?` data-pressure-tag="${tags[n]}${t}"`:""}>${v}</span><small>${n===0?'MPa':n<3?'℃':'%'}</small></div>`).join('')}<div class="tank-gds-title">${t==='D'?'GDS 实时监测':'GDS 监测（演示）'}</div>${tankGdsReadings[t].map(([id,value])=>`<div class="tank-gds-row"><span>${id}</span><span>${value}</span></div>`).join('')}</div>`;
   tip.querySelector('button').onclick=e=>{e.stopPropagation();tip.classList.add('is-dismissed');tip.removeAttribute('aria-label');tip.querySelector('.tank-c-tip-content').hidden=true;};
   $('#scene').append(tip);
 });
