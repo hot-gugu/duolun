@@ -15,7 +15,15 @@
   const vq=s=>videoPopup.querySelector(s);let channel='visible';let playRequest=0;
 
   const q=s=>popup.querySelector(s),esc=v=>String(v??'—').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  let state={online:true,mode:'自动巡检',battery:76,location:'丙烯罐区 · T41402A 附近中央通道',task:{name:'罐区例行巡检',status:'执行中',done:6,total:12,alarms:1,remaining:'00:12:30'},fault:null,updatedAt:null,videoSources:{},sensors:[]};
+  const demoSensors=[
+    {key:'methane',value:0.6,unit:'%VOL'},
+    {key:'oxygen',value:20.9,unit:'%VOL'},
+    {key:'co',value:0,unit:'ppm'},
+    {key:'h2s',value:0,unit:'ppm'},
+    {key:'smoke',value:'无'},
+    {key:'temperature',value:26.5,unit:'℃'}
+  ];
+  let state={online:true,mode:'自动巡检',battery:76,location:'丙烯罐区 · T41402A 附近中央通道',task:{name:'罐区例行巡检',status:'执行中',done:6,total:12,alarms:1,remaining:'00:12:30'},fault:null,updatedAt:null,videoSources:{},sensors:demoSensors};
   let opener=anchor;
   const video=vq('video');
   function position(){
@@ -46,14 +54,20 @@
     q('.mr-task').innerHTML=t?`<div class="mr-task-top"><span>${esc(t.name)}</span><span>${pct==null?'—':pct+'%'}</span></div><div class="mr-track" role="progressbar" aria-label="当前任务执行进度" ${pct==null?'':`aria-valuenow="${pct}"`} aria-valuemin="0" aria-valuemax="100"><span style="width:${pct||0}%"></span></div><div class="mr-task-meta">已巡 ${done} / ${total} · 告警 ${esc(t.alarms??'—')}<br>预计剩余时间 ${esc(t.remaining)}</div>`:'<div class="mr-task-top"><span>暂无任务</span><span>待命</span></div><div class="mr-task-meta">当前任务进度：—</div>';
     const labels={methane:'甲烷',oxygen:'氧气',co:'一氧化碳',h2s:'硫化氢',temperature:'温度',smoke:'烟雾'};
     const sensors=Array.isArray(state.sensors)?state.sensors:Object.entries(state.sensors||{}).map(([key,value])=>typeof value==='object'&&value!==null?{key,...value}:{key,label:labels[key]||key,value});
+    const isDemo=state.sensors===demoSensors;
+    q('.mr-title').textContent=isDemo?'环境监测（演示）':'环境监测';
     const monitoredSensors=Object.keys(labels).map(key=>({key,label:labels[key],...sensors.find(item=>item.key===key||item.label===labels[key]||item.name===labels[key])}));
     monitoredSensors.push(...sensors.filter(item=>!monitoredSensors.some(field=>field.key===item.key||field.label===(item.label||item.name))));
     const sensorHTML=monitoredSensors.map(item=>`<div class="mr-sensor"><span>${esc(item.label||item.name||labels[item.key]||item.key)}</span><b>${esc(item.value==null||item.value===''?'--':item.value)}${item.value!=null&&item.value!==''&&item.unit?' '+esc(item.unit):''}</b></div>`).join('');
     q('.mr-sensors').innerHTML=sensorHTML;
     const sidebarSensors=document.querySelector('.robot-panel .gas-readings');
-    if(sidebarSensors)sidebarSensors.innerHTML=sensors.map(item=>`<div><span>${esc(item.label||item.name||labels[item.key]||item.key)}</span><b>${esc(item.value==null?'未返回':item.value)}${item.value!=null&&item.unit?' '+esc(item.unit):''}</b></div>`).join('')||'<div>暂无机器人上报数据</div>';
+    const reportedSensors=sensors.filter(item=>item.value!=null&&item.value!=='');
+    if(sidebarSensors)sidebarSensors.innerHTML=reportedSensors.map(item=>{
+      const demoAlarm=isDemo&&item.key==='methane';
+      return `<div${demoAlarm?' class="gas-alert"':''}><span>${esc(item.label||item.name||labels[item.key]||item.key)}${demoAlarm?' <small>示例异常</small>':''}</span><b>${esc(item.value)}${item.unit?' '+esc(item.unit):''}</b></div>`;
+    }).join('')||'<div>暂无机器人上报数据</div>';
     q('.mr-fault').hidden=!state.fault;q('.mr-fault').textContent=state.fault?'故障提示：'+state.fault:'';
-    q('.mr-time').textContent=state.updatedAt?`数据更新时间：${state.updatedAt}${state.online?'':' · 已离线，以上为最后上报数据'}`:'数据更新时间：— · 等待机器人上报';
+    q('.mr-time').textContent=isDemo?'环境监测读数为演示数据':state.updatedAt?`数据更新时间：${state.updatedAt}${state.online?'':' · 已离线，以上为最后上报数据'}`:'数据更新时间：—';
     if(!state.online&&!state.updatedAt)q('.mr-time').textContent+=' · 设备已离线';
     position();
   }
