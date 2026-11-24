@@ -1,13 +1,13 @@
 (()=>{
 const {ref,reactive,computed,onMounted,onUnmounted}=Vue;
 const App={components:{SharedPersonField:window.SharedPersonField},setup(){const message=naive.useMessage(),ready=ref(false),busy=ref(false),people=ref([]),context=ref({});
-const draft=reactive({name:'未佩戴安全帽',content:'',time:null,location:'',method:'线上核查',situation:'',person:null,handlingUnit:'',confirmer:null,result:'真警'});
+const draft=reactive({name:'未戴安全帽',content:'',time:null,location:'',method:'线上核查',situation:'',person:null,handlingUnit:'',confirmer:null,result:'真警'});
 const picker=reactive({show:false,field:'person',selected:null,keyword:'',post:null}),posts=ref([]),organizations=ref([]);
 const pickerRows=computed(()=>people.value.filter(p=>(!picker.post||(p.postIds||[]).includes(picker.post))&&(!picker.keyword.trim()||[p.label,p.id].join(' ').includes(picker.keyword.trim()))));
 function openPicker(field){picker.field=field;picker.keyword='';picker.post=null;picker.selected=people.value.find(p=>p.value===draft[field])?.id||null;picker.show=true}
 function confirmPicker(){const person=people.value.find(p=>p.id===picker.selected);if(!person)return message.warning('请选择人员');draft[picker.field]=person.value;picker.show=false}
 const requestId='MANUAL-'+Date.now()+'-'+Math.random().toString(36).slice(2);
-const names=['未佩戴安全帽','未穿反光衣','人员吸烟','非法闯入','围栏翻越','杂物堆积','烟雾报警','火焰报警','跑冒滴漏','气体泄漏'].map(value=>({label:value,value}));
+const names=["区域入侵","人员滞留","人员聚集","未戴安全帽"].map(value=>({label:value,value}));
 function receive(e){if(e.source!==parent)return;if(e.data?.type==='duolun-manual-init'){context.value=e.data.context||{};people.value=e.data.people||[];posts.value=e.data.posts||[];organizations.value=e.data.organizations||[];draft.location=context.value.location||'';ready.value=true}else if(e.data?.type==='duolun-manual-error'&&e.data.requestId===requestId){busy.value=false;message.error(e.data.message||'保存失败，请重试')}}
 function submit(){if(busy.value)return;if(!ready.value)return message.warning('尚未连接主平台，请返回后重新进入');if(!draft.name||!draft.content.trim()||!draft.time||!draft.location.trim()||!draft.situation.trim()||!draft.person)return message.error('请填写报警内容、时间、地点、核查情况和记录人');if(draft.time>Date.now())return message.error('报警时间不能晚于当前时间');if(draft.result==='真警'&&(!draft.handlingUnit.trim()||!draft.confirmer))return message.error('请填写处理单位和处理确认人');busy.value=true;parent.postMessage({type:'duolun-manual-submit',requestId,record:{...draft,result:'真警',method:'线上核查',cameraId:context.value.cameraId}},'*')}
 function cancel(){if(!busy.value)history.back()}
